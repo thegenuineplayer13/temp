@@ -17,7 +17,6 @@ import {
 	CalendarIcon,
 	X,
 	CheckCircle2,
-	Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useReviews, useReviewStats } from "@/features/core/hooks/queries/queries.reviews";
@@ -446,85 +445,14 @@ export default function ReviewsPage() {
 
 					{/* Stats Sidebar - Right Side (4 columns, sticky) */}
 					<div className="col-span-4">
-						<div className="sticky top-24 space-y-4">
+						<div className="sticky top-24">
 							{/* Review Stats Breakdown */}
-							<ReviewStatsBreakdown reviews={filteredReviews} averageRating={stats.averageRating} />
-
-							{/* Quick Stats */}
-							<Card>
-								<CardContent className="pt-4 pb-4">
-									<div className="space-y-3">
-										{/* Unread Count */}
-										<div className="flex items-center justify-between">
-											<span className="text-xs font-medium text-muted-foreground">Unread</span>
-											<Badge variant="secondary" className="text-sm font-bold">
-												{stats.unreadCount}
-											</Badge>
-										</div>
-
-										{/* Response Rate */}
-										<div className="flex items-center justify-between">
-											<span className="text-xs font-medium text-muted-foreground">Response Rate</span>
-											<div className="flex items-baseline gap-1">
-												<span className="text-lg font-bold">{stats.responseRate.toFixed(0)}</span>
-												<span className="text-xs text-muted-foreground">%</span>
-											</div>
-										</div>
-
-										<div className="h-px bg-border" />
-
-										{/* Sentiment */}
-										<div className="space-y-2">
-											<span className="text-xs font-medium text-muted-foreground">Sentiment</span>
-											<div className="flex items-center gap-2">
-												<div className="flex items-center gap-1 flex-1">
-													<div className="w-2 h-2 rounded-full bg-green-500" />
-													<span className="text-xs">{stats.positiveCount}</span>
-												</div>
-												<div className="flex items-center gap-1 flex-1">
-													<div className="w-2 h-2 rounded-full bg-yellow-500" />
-													<span className="text-xs">{stats.neutralCount}</span>
-												</div>
-												<div className="flex items-center gap-1 flex-1">
-													<div className="w-2 h-2 rounded-full bg-red-500" />
-													<span className="text-xs">{stats.negativeCount}</span>
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Monthly Trend */}
-							<Card>
-								<CardContent className="pt-6 pb-6">
-									<h3 className="font-semibold text-sm mb-4">This Month</h3>
-
-									<div className="space-y-3">
-										<div className="flex items-center justify-between">
-											<span className="text-xs font-medium text-muted-foreground">Reviews</span>
-											<span className="text-xl font-bold">{stats.thisMonthCount}</span>
-										</div>
-
-										<div className="flex items-center justify-between">
-											<span className="text-xs font-medium text-muted-foreground">vs Last Month</span>
-											{stats.monthlyTrend === "up" ? (
-												<div className="flex items-center gap-1 text-sm text-green-600 dark:text-green-500 bg-green-500/10 px-2 py-0.5 rounded">
-													<TrendingUp className="h-3 w-3" />
-													<span className="font-bold">+{stats.monthlyPercentageChange}%</span>
-												</div>
-											) : stats.monthlyTrend === "down" ? (
-												<div className="flex items-center gap-1 text-sm text-red-600 dark:text-red-500 bg-red-500/10 px-2 py-0.5 rounded">
-													<TrendingDown className="h-3 w-3" />
-													<span className="font-bold">{stats.monthlyPercentageChange}%</span>
-												</div>
-											) : (
-												<span className="text-sm text-muted-foreground">No change</span>
-											)}
-										</div>
-									</div>
-								</CardContent>
-							</Card>
+							<ReviewStatsBreakdown
+								reviews={filteredReviews}
+								averageRating={stats.averageRating}
+								responseRate={stats.responseRate}
+								unreadCount={stats.unreadCount}
+							/>
 						</div>
 					</div>
 				</div>
