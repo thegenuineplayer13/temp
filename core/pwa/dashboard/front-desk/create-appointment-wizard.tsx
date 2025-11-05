@@ -115,60 +115,83 @@ export function CreateAppointmentWizard() {
       setBookingStep(Math.max(1, bookingStep - 1));
    };
 
-   const footer = (
-      <div className="flex flex-col gap-3">
-         {/* Progress indicator */}
-         <div className="flex items-center justify-center gap-2">
-            {steps.map((_, index) => (
-               <div
-                  key={index}
-                  className={`h-2 rounded-full transition-all ${
-                     index + 1 === bookingStep
-                        ? "w-8 bg-primary"
-                        : index + 1 < bookingStep
-                          ? "w-2 bg-primary/50"
-                          : "w-2 bg-muted"
-                  }`}
-               />
-            ))}
-         </div>
-
-         {/* Navigation buttons */}
-         <div className="flex gap-2">
-            {bookingStep > 1 && (
-               <Button variant="outline" onClick={handleBack} className="flex-1">
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Back
-               </Button>
-            )}
-
-            {!isLastStep ? (
-               <Button onClick={handleNext} disabled={!currentStep?.canProceed()} className="flex-1">
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-               </Button>
-            ) : null}
-
-            {bookingStep === 1 && (
-               <Button variant="ghost" onClick={handleClose} className="flex-1">
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-               </Button>
-            )}
-         </div>
+   // Progress dots for description
+   const progressDots = (
+      <div className="flex items-center gap-1.5 mt-1">
+         {steps.map((_, index) => (
+            <div
+               key={index}
+               className={`h-1.5 rounded-full transition-all ${
+                  index + 1 === bookingStep
+                     ? "w-6 bg-primary"
+                     : index + 1 < bookingStep
+                       ? "w-1.5 bg-primary/60"
+                       : "w-1.5 bg-muted-foreground/30"
+               }`}
+            />
+         ))}
       </div>
    );
+
+   const footer = !isLastStep ? (
+      <div className="flex gap-3 w-full">
+         {bookingStep > 1 ? (
+            <>
+               <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  size="lg"
+                  className="w-32"
+               >
+                  Back
+               </Button>
+               <Button
+                  onClick={handleNext}
+                  disabled={!currentStep?.canProceed()}
+                  size="lg"
+                  className="flex-1"
+               >
+                  Continue
+               </Button>
+            </>
+         ) : (
+            <>
+               <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  size="lg"
+                  className="w-32"
+               >
+                  Cancel
+               </Button>
+               <Button
+                  onClick={handleNext}
+                  disabled={!currentStep?.canProceed()}
+                  size="lg"
+                  className="flex-1"
+               >
+                  Continue
+               </Button>
+            </>
+         )}
+      </div>
+   ) : null;
 
    return (
       <ResponsiveDialog
          open={isBookingWizardOpen}
          onOpenChange={(open) => !open && handleClose()}
          title={currentStep?.title || ""}
-         description={`Step ${bookingStep} of ${totalSteps}`}
+         description={
+            <div className="flex items-center gap-3">
+               <span className="text-sm text-muted-foreground">Step {bookingStep} of {totalSteps}</span>
+               {progressDots}
+            </div>
+         }
          footer={footer}
          className="max-w-3xl"
       >
-         <div className="min-h-[400px]">{currentStep?.component}</div>
+         <div>{currentStep?.component}</div>
       </ResponsiveDialog>
    );
 }

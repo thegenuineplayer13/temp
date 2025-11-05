@@ -45,15 +45,15 @@ export function ResponsiveDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[85vh]">
-          <DrawerHeader>
+        <DrawerContent className="max-h-[90vh] flex flex-col">
+          <DrawerHeader className="flex-shrink-0">
             <DrawerTitle>{title}</DrawerTitle>
             {description && <DrawerDescription>{description}</DrawerDescription>}
           </DrawerHeader>
-          <div className={`overflow-y-auto px-4 ${className || ""}`}>
+          <div className={`overflow-y-auto px-4 flex-1 ${className || ""}`}>
             {children}
           </div>
-          {footer && <DrawerFooter>{footer}</DrawerFooter>}
+          {footer && <DrawerFooter className="flex-shrink-0 border-t bg-background">{footer}</DrawerFooter>}
         </DrawerContent>
       </Drawer>
     );
@@ -61,13 +61,15 @@ export function ResponsiveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-h-[85vh] overflow-y-auto ${className || ""}`}>
-        <DialogHeader>
+      <DialogContent className={`max-h-[90vh] flex flex-col p-0 gap-0 ${className || ""}`}>
+        <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b bg-background sticky top-0 z-10">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        {children}
-        {footer && <DialogFooter>{footer}</DialogFooter>}
+        <div className="overflow-y-auto px-6 py-4 flex-1">
+          {children}
+        </div>
+        {footer && <DialogFooter className="px-6 py-4 flex-shrink-0 border-t bg-background sticky bottom-0">{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );

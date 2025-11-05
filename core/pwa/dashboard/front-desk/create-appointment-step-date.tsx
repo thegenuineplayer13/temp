@@ -1,11 +1,59 @@
+import { useMemo } from "react";
 import { useFrontDeskStore } from "@/features/core/store/store.front-desk";
+import { useEmployees } from "@/features/core/hooks/queries/queries.staff";
+import { useServiceRelationships } from "@/features/core/hooks/queries/queries.services";
+import { useAppointments } from "@/features/core/hooks/queries/queries.dashboard-front-desk";
+import { useWorkingHours, useTimeOffEntries } from "@/features/core/hooks/queries/queries.calendar";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
+import {
+   findEmployeesForAllServices,
+   isEmployeeWorkingOnDate,
+   getAvailableTimeSlots,
+   getSequentialTimeSlots,
+} from "@/features/core/lib/booking-utils";
 
 export function CreateAppointmentStepDate() {
    const { bookingData, updateBookingData } = useFrontDeskStore();
+   const { data: allEmployees = [] } = useEmployees();
+   const { data: serviceRelationships = {} } = useServiceRelationships();
+   const { data: appointments = [] } = useAppointments();
+   const { data: workingHours = [] } = useWorkingHours();
+   const { data: timeOffEntries = [] } = useTimeOffEntries();
+
+   const employees = useMemo(
+      () => allEmployees.filter((emp) => emp.status === "active"),
+      [allEmployees]
+   );
 
    const selectedDate = bookingData.selectedDate ? new Date(bookingData.selectedDate) : undefined;
+
+   // Check if a date has any available slots
+   const hasAvailableSlots = (date: Date) => {
+      // Get potential staff
+      const potentialStaff = findEmployeesForAllServices(employees, bookingData.serviceCart, serviceRelationships);
+
+      if (potentialStaff.length === 0) return false;
+
+      // Check if any staff member has available slots on this date
+      return potentialStaff.some((employee) => {
+         if (!isEmployeeWorkingOnDate(employee.id, date, workingHours, timeOffEntries)) {
+            return false;
+         }
+
+         const totalDuration = bookingData.serviceCart.reduce((sum, s) => sum + s.duration, 0);
+         const slots = getSequentialTimeSlots(
+            employee.id,
+            date,
+            bookingData.serviceCart,
+            appointments,
+            workingHours,
+            timeOffEntries
+         );
+
+         return slots.length > 0;
+      });
+   };
 
    const handleDateSelect = (date: Date | undefined) => {
       if (!date) return;
@@ -13,11 +61,6 @@ export function CreateAppointmentStepDate() {
       updateBookingData({
          selectedDate: date.toISOString(),
          startTime: null, // Reset time when date changes
-      });
-
-      // Reset service assignment times for parallel mode
-      bookingData.serviceAssignments.forEach((assignment) => {
-         // We'll update these in the staff-time step
       });
    };
 
@@ -29,41 +72,46 @@ export function CreateAppointmentStepDate() {
             </div>
             <h3 className="font-semibold text-lg">When would you like to schedule this appointment?</h3>
             <p className="text-sm text-muted-foreground">
-               Select a date to see available time slots
+               Dates with available time slots are highlighted
             </p>
          </div>
 
          <div className="flex justify-center">
-            <Calendar
-               mode="single"
-               selected={selectedDate}
-               onSelect={handleDateSelect}
-               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-               className="rounded-md border shadow-sm scale-110"
-               classNames={{
-                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  month: "space-y-4",
-                  caption: "flex justify-center pt-1 relative items-center",
-                  caption_label: "text-base font-semibold",
-                  nav: "space-x-1 flex items-center",
-                  nav_button: "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100",
-                  nav_button_previous: "absolute left-1",
-                  nav_button_next: "absolute right-1",
-                  table: "w-full border-collapse space-y-1",
-                  head_row: "flex",
-                  head_cell: "text-muted-foreground rounded-md w-11 font-normal text-sm",
-                  row: "flex w-full mt-2",
-                  cell: "h-11 w-11 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                  day: "h-11 w-11 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md",
-                  day_range_end: "day-range-end",
-                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground font-semibold",
-                  day_today: "bg-accent text-accent-foreground font-semibold",
-                  day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-                  day_disabled: "text-muted-foreground opacity-50",
-                  day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  day_hidden: "invisible",
-               }}
-            />
+            <div className="w-full max-w-md">
+               <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  disabled={(date) => {
+                     // Disable past dates
+                     if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+                     // Disable dates with no available slots
+                     return !hasAvailableSlots(date);
+                  }}
+                  className="rounded-lg border-2 shadow-lg w-full"
+                  classNames={{
+                     months: "flex flex-col",
+                     month: "space-y-4 w-full",
+                     caption: "flex justify-center pt-2 relative items-center px-10",
+                     caption_label: "text-lg font-semibold",
+                     nav: "flex items-center gap-1",
+                     nav_button: "h-9 w-9 bg-transparent p-0 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+                     nav_button_previous: "absolute left-2",
+                     nav_button_next: "absolute right-2",
+                     table: "w-full border-collapse mt-4",
+                     head_row: "flex w-full",
+                     head_cell: "text-muted-foreground rounded-md flex-1 font-medium text-sm py-2",
+                     row: "flex w-full mt-1",
+                     cell: "flex-1 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+                     day: "h-12 w-full p-0 font-normal hover:bg-accent hover:text-accent-foreground rounded-md transition-colors inline-flex items-center justify-center",
+                     day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-bold",
+                     day_today: "bg-accent text-accent-foreground font-semibold border-2 border-primary/30",
+                     day_outside: "text-muted-foreground/30 opacity-30",
+                     day_disabled: "text-muted-foreground/30 opacity-30 line-through hover:bg-transparent cursor-not-allowed",
+                     day_hidden: "invisible",
+                  }}
+               />
+            </div>
          </div>
 
          {selectedDate && (
