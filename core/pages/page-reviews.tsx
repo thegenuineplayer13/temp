@@ -24,6 +24,7 @@ import { useReviews, useReviewStats } from "@/features/core/hooks/queries/querie
 import { useReviewsStore } from "@/features/core/store/store.reviews";
 import { ReviewCard } from "@/features/core/components/reviews/review-card";
 import { ResponseModal } from "@/features/core/components/reviews/response-modal";
+import { ReviewStatsBreakdown } from "@/features/core/components/reviews/review-stats-breakdown";
 import type { ReadStatus, Review } from "@/features/core/types/types.reviews";
 import type { DateRange } from "react-day-picker";
 
@@ -277,7 +278,7 @@ export default function ReviewsPage() {
 				</div>
 
 				{/* Reviews List */}
-				<div className="px-4 pt-4 space-y-3">
+				<div className="px-4 pt-4 space-y-2">
 					{filteredReviews.length === 0 ? (
 						<Card>
 							<CardContent className="pt-12 pb-12 text-center">
@@ -422,7 +423,7 @@ export default function ReviewsPage() {
 			<div className="container mx-auto px-6 py-6">
 				<div className="grid grid-cols-12 gap-6">
 					{/* Reviews List - Left Side (8 columns) */}
-					<div className="col-span-8 space-y-3">
+					<div className="col-span-8 space-y-2">
 						{filteredReviews.length === 0 ? (
 							<Card>
 								<CardContent className="pt-12 pb-12 text-center">
@@ -446,45 +447,13 @@ export default function ReviewsPage() {
 					{/* Stats Sidebar - Right Side (4 columns, sticky) */}
 					<div className="col-span-4">
 						<div className="sticky top-24 space-y-4">
-							{/* Overview Card */}
+							{/* Review Stats Breakdown */}
+							<ReviewStatsBreakdown reviews={filteredReviews} averageRating={stats.averageRating} />
+
+							{/* Quick Stats */}
 							<Card>
-								<CardContent className="pt-6 pb-6">
-									<h3 className="font-semibold text-sm mb-4 flex items-center gap-2">
-										<Filter className="h-4 w-4 text-primary" />
-										Overview
-									</h3>
-
-									<div className="space-y-4">
-										{/* Average Rating */}
-										<div>
-											<div className="flex items-center justify-between mb-2">
-												<span className="text-xs font-medium text-muted-foreground">Average Rating</span>
-												<div className="flex items-baseline gap-1">
-													<span className="text-2xl font-bold">{stats.averageRating.toFixed(1)}</span>
-													<span className="text-sm text-muted-foreground">/ 5.0</span>
-												</div>
-											</div>
-											<div className="flex items-center gap-1">
-												{[...Array(5)].map((_, i) => (
-													<Star
-														key={i}
-														className={cn(
-															"h-4 w-4",
-															i < Math.round(stats.averageRating) ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30"
-														)}
-													/>
-												))}
-											</div>
-										</div>
-
-										<div className="h-px bg-border" />
-
-										{/* Total Reviews */}
-										<div className="flex items-center justify-between">
-											<span className="text-xs font-medium text-muted-foreground">Total Reviews</span>
-											<span className="text-xl font-bold">{stats.totalReviews}</span>
-										</div>
-
+								<CardContent className="pt-4 pb-4">
+									<div className="space-y-3">
 										{/* Unread Count */}
 										<div className="flex items-center justify-between">
 											<span className="text-xs font-medium text-muted-foreground">Unread</span>
@@ -497,56 +466,29 @@ export default function ReviewsPage() {
 										<div className="flex items-center justify-between">
 											<span className="text-xs font-medium text-muted-foreground">Response Rate</span>
 											<div className="flex items-baseline gap-1">
-												<span className="text-xl font-bold">{stats.responseRate.toFixed(0)}</span>
-												<span className="text-sm text-muted-foreground">%</span>
-											</div>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Sentiment Distribution */}
-							<Card>
-								<CardContent className="pt-6 pb-6">
-									<h3 className="font-semibold text-sm mb-4">Sentiment</h3>
-
-									<div className="space-y-3">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center gap-2">
-												<div className="w-3 h-3 rounded-full bg-green-500" />
-												<span className="text-xs font-medium text-muted-foreground">Positive</span>
-											</div>
-											<div className="flex items-center gap-2">
-												<span className="text-sm font-bold">{stats.positiveCount}</span>
-												<span className="text-xs text-muted-foreground">
-													({((stats.positiveCount / stats.totalReviews) * 100).toFixed(0)}%)
-												</span>
+												<span className="text-lg font-bold">{stats.responseRate.toFixed(0)}</span>
+												<span className="text-xs text-muted-foreground">%</span>
 											</div>
 										</div>
 
-										<div className="flex items-center justify-between">
-											<div className="flex items-center gap-2">
-												<div className="w-3 h-3 rounded-full bg-yellow-500" />
-												<span className="text-xs font-medium text-muted-foreground">Neutral</span>
-											</div>
-											<div className="flex items-center gap-2">
-												<span className="text-sm font-bold">{stats.neutralCount}</span>
-												<span className="text-xs text-muted-foreground">
-													({((stats.neutralCount / stats.totalReviews) * 100).toFixed(0)}%)
-												</span>
-											</div>
-										</div>
+										<div className="h-px bg-border" />
 
-										<div className="flex items-center justify-between">
+										{/* Sentiment */}
+										<div className="space-y-2">
+											<span className="text-xs font-medium text-muted-foreground">Sentiment</span>
 											<div className="flex items-center gap-2">
-												<div className="w-3 h-3 rounded-full bg-red-500" />
-												<span className="text-xs font-medium text-muted-foreground">Negative</span>
-											</div>
-											<div className="flex items-center gap-2">
-												<span className="text-sm font-bold">{stats.negativeCount}</span>
-												<span className="text-xs text-muted-foreground">
-													({((stats.negativeCount / stats.totalReviews) * 100).toFixed(0)}%)
-												</span>
+												<div className="flex items-center gap-1 flex-1">
+													<div className="w-2 h-2 rounded-full bg-green-500" />
+													<span className="text-xs">{stats.positiveCount}</span>
+												</div>
+												<div className="flex items-center gap-1 flex-1">
+													<div className="w-2 h-2 rounded-full bg-yellow-500" />
+													<span className="text-xs">{stats.neutralCount}</span>
+												</div>
+												<div className="flex items-center gap-1 flex-1">
+													<div className="w-2 h-2 rounded-full bg-red-500" />
+													<span className="text-xs">{stats.negativeCount}</span>
+												</div>
 											</div>
 										</div>
 									</div>
