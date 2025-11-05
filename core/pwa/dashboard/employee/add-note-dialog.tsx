@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BadgeFilters } from "@/features/core/components/shared/badge-filters";
 import { Mic, Send, FileText, User, CheckCircle2, Flag, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NoteForm, NoteType } from "@/features/core/types/types.dashboard-employee";
@@ -61,6 +61,34 @@ const NOTE_CONFIG = {
       templates: ["Client interested in premium service", "Asked about additional treatments", "Interested in product purchase"],
    },
 } as const;
+
+const NOTE_TYPE_FILTERS = [
+   {
+      value: "job" as NoteType,
+      label: "Job Note",
+      color: "text-primary border-primary/30 hover:bg-primary/10",
+   },
+   {
+      value: "client" as NoteType,
+      label: "Client Note",
+      color: "text-primary border-primary/30 hover:bg-primary/10",
+   },
+   {
+      value: "completion" as NoteType,
+      label: "Completion",
+      color: "text-primary border-primary/30 hover:bg-primary/10",
+   },
+   {
+      value: "issue" as NoteType,
+      label: "Issue",
+      color: "text-red-600 dark:text-red-500 border-red-500/30 hover:bg-red-500/10",
+   },
+   {
+      value: "upsell" as NoteType,
+      label: "Upsell",
+      color: "text-green-600 dark:text-green-500 border-green-500/30 hover:bg-green-500/10",
+   },
+];
 
 export function AddNoteDialog({ open, onOpenChange, noteType: initialNoteType = "job" }: AddNoteDialogProps) {
    const [isRecording, setIsRecording] = useState(false);
@@ -129,25 +157,11 @@ export function AddNoteDialog({ open, onOpenChange, noteType: initialNoteType = 
                <div className="space-y-4 py-4">
                   <div>
                      <label className="text-sm font-medium mb-2 block">Note Type</label>
-                     <Select value={selectedNoteType} onValueChange={(value) => setSelectedNoteType(value as NoteType)}>
-                        <SelectTrigger className="w-full">
-                           <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                           {(Object.keys(NOTE_CONFIG) as NoteType[]).map((type) => {
-                              const typeConfig = NOTE_CONFIG[type];
-                              const Icon = typeConfig.icon;
-                              return (
-                                 <SelectItem key={type} value={type}>
-                                    <div className="flex items-center gap-2">
-                                       <Icon className={cn("h-4 w-4", typeConfig.color)} />
-                                       <span>{typeConfig.badge}</span>
-                                    </div>
-                                 </SelectItem>
-                              );
-                           })}
-                        </SelectContent>
-                     </Select>
+                     <BadgeFilters
+                        filters={NOTE_TYPE_FILTERS}
+                        selectedValue={selectedNoteType}
+                        onSelect={(value) => setSelectedNoteType(value)}
+                     />
                   </div>
 
                   <div>

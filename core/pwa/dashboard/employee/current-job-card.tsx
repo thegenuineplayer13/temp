@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, User, Briefcase, Play, CheckCircle, ArrowRight, ChevronRight } from "lucide-react";
+import { Clock, User, Briefcase, Play, CheckCircle, ArrowRight, ChevronRight, FileText, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { Appointment, CurrentJob } from "@/features/core/types/types.dashboard-employee";
@@ -14,6 +14,8 @@ interface CurrentJobCardProps {
    onCompleteJob: () => void;
    onStartNextJob: () => void;
    onViewClientProfile?: () => void;
+   onAddNote?: () => void;
+   onPhotos?: () => void;
 }
 
 export function CurrentJobCard({
@@ -23,6 +25,8 @@ export function CurrentJobCard({
    onCompleteJob,
    onStartNextJob,
    onViewClientProfile,
+   onAddNote,
+   onPhotos,
 }: CurrentJobCardProps) {
    const isMobile = useIsMobile();
    const { elapsedTime, formattedTime } = useJobTimer();
@@ -302,6 +306,28 @@ export function CurrentJobCard({
                         Start Next
                      </Button>
                   )}
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-2">
+                     <Button
+                        onClick={onAddNote}
+                        variant="outline"
+                        size="sm"
+                        className="h-10 hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors"
+                     >
+                        <FileText className="h-4 w-4 mr-1.5" />
+                        <span className="text-xs font-medium">Note</span>
+                     </Button>
+                     <Button
+                        onClick={onPhotos}
+                        variant="outline"
+                        size="sm"
+                        className="h-10 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
+                     >
+                        <Camera className="h-4 w-4 mr-1.5" />
+                        <span className="text-xs font-medium">Photos</span>
+                     </Button>
+                  </div>
 
                   {nextJob ? (
                      <div

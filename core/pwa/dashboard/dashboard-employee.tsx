@@ -1,8 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModal } from "@/hooks/use-modal";
 import { CurrentJobCard } from "./employee/current-job-card";
 import { JobActionsPanel } from "./employee/job-actions-panel";
+import { AddNoteDialog } from "./employee/add-note-dialog";
+import { PhotoUpload } from "./employee/photo-upload";
 import { TodayStats } from "./employee/today-stats";
 import { ClientInfoCard } from "./employee/client-info-card";
 import { ClientProfileDrawer } from "./employee/client-profile-drawer";
@@ -12,6 +14,8 @@ import { useEmployeeStore } from "../../store/store.employee";
 export default function EmployeeDashboard() {
    const isMobile = useIsMobile();
    const clientDrawer = useModal();
+   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
 
    const { data: dashboardData } = useEmployeeDashboard();
    const { currentJob, updateJobStatus, setIsTimerRunning, setCurrentJob, resetTimer } = useEmployeeStore();
@@ -40,6 +44,14 @@ export default function EmployeeDashboard() {
          resetTimer();
       }
    }, [dashboardData, setCurrentJob, resetTimer]);
+
+   const handleAddNote = useCallback(() => {
+      setNoteDialogOpen(true);
+   }, []);
+
+   const handlePhotos = useCallback(() => {
+      setPhotoUploadOpen(true);
+   }, []);
 
    if (!currentJob && dashboardData?.currentJob) {
       setCurrentJob(dashboardData.currentJob);
@@ -96,9 +108,9 @@ export default function EmployeeDashboard() {
                      onStartTimer={handleStartTimer}
                      onCompleteJob={handleCompleteJob}
                      onStartNextJob={handleStartNextJob}
+                     onAddNote={handleAddNote}
+                     onPhotos={handlePhotos}
                   />
-
-                  <JobActionsPanel />
                </div>
 
                <div className="col-span-1">
@@ -106,6 +118,9 @@ export default function EmployeeDashboard() {
                </div>
             </div>
          </div>
+
+         <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
+         <PhotoUpload open={photoUploadOpen} onOpenChange={setPhotoUploadOpen} />
       </div>
    );
 }
