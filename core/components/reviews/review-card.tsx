@@ -13,7 +13,7 @@ interface ReviewCardProps {
 	onRespond?: (review: Review) => void;
 }
 
-const CHARACTER_LIMIT = 150;
+const CHARACTER_LIMIT = 120;
 
 export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps) {
 	const isMobile = useIsMobile();
@@ -43,261 +43,182 @@ export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps)
 
 		if (diffDays === 0) return "Today";
 		if (diffDays === 1) return "Yesterday";
-		if (diffDays < 7) return `${diffDays} days ago`;
+		if (diffDays < 7) return `${diffDays}d ago`;
 
-		return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+		return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 	};
 
 	if (isMobile) {
+		// Ultra-compact mobile layout
 		return (
-			<Card
+			<div
 				className={cn(
-					"relative overflow-hidden transition-all duration-200",
-					!review.isRead && "border-l-4 border-l-primary bg-primary/5"
+					"p-3 rounded-lg border bg-card transition-all duration-200",
+					!review.isRead && "border-l-2 border-l-primary bg-primary/5"
 				)}
 			>
-				<CardContent className="p-4">
-					{/* Header */}
-					<div className="flex items-start justify-between gap-3 mb-3">
-						<div className="flex items-start gap-3 flex-1 min-w-0">
-							<div className="flex-shrink-0 mt-1">
-								{review.customerType === "client" ? (
-									<div className="rounded-full bg-primary/10 p-2">
-										<UserCheck className="h-4 w-4 text-primary" />
-									</div>
-								) : (
-									<div className="rounded-full bg-muted p-2">
-										<User className="h-4 w-4 text-muted-foreground" />
-									</div>
-								)}
-							</div>
-
-							<div className="flex-1 min-w-0">
-								<div className="flex items-center gap-2 flex-wrap">
-									<h3 className="font-semibold text-sm truncate">{review.customerName}</h3>
-									<Badge variant="outline" className="text-xs">
-										{review.customerType === "client" ? "Client" : "Walk-in"}
-									</Badge>
-									{review.flagged && (
-										<Badge variant="destructive" className="text-xs">
-											<Flag className="h-3 w-3 mr-1" />
-											Flagged
-										</Badge>
-									)}
-								</div>
-
-								<div className="flex items-center gap-2 mt-1">
-									<div className="flex items-center">
-										{[...Array(5)].map((_, i) => (
-											<Star
-												key={i}
-												className={cn("h-3.5 w-3.5", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30")}
-											/>
-										))}
-									</div>
-									<span className="text-xs text-muted-foreground">•</span>
-									<span className="text-xs text-muted-foreground">{formatDate(review.date)}</span>
-								</div>
-							</div>
-						</div>
-
-						<div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-							<Badge className={cn("text-xs", getSentimentColor(review.sentiment))}>{review.sentiment}</Badge>
-							{!review.isRead && (
-								<Badge variant="secondary" className="text-xs">
-									New
-								</Badge>
-							)}
-						</div>
-					</div>
-
-					{/* Service & Employee Info */}
-					<div className="flex flex-wrap gap-2 mb-3">
-						<div className="text-xs text-muted-foreground">
-							<span className="font-medium">Service:</span> {review.service}
-						</div>
-						<span className="text-xs text-muted-foreground">•</span>
-						<div className="text-xs text-muted-foreground">
-							<span className="font-medium">Staff:</span> {review.employee}
-						</div>
-					</div>
-
-					{/* Review Comment */}
-					<div className="space-y-2">
-						<p className="text-sm leading-relaxed text-foreground/90">{displayComment}</p>
-						{commentNeedsExpansion && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-								className="h-auto py-1 px-2 text-xs"
-							>
-								{isCommentExpanded ? (
-									<>
-										<ChevronUp className="h-3 w-3 mr-1" />
-										Show less
-									</>
-								) : (
-									<>
-										<ChevronDown className="h-3 w-3 mr-1" />
-										Read more
-									</>
-								)}
-							</Button>
+				{/* Header - Single Line */}
+				<div className="flex items-center justify-between gap-2 mb-1.5">
+					<div className="flex items-center gap-1.5 flex-1 min-w-0">
+						{review.customerType === "client" ? (
+							<UserCheck className="h-3 w-3 text-primary flex-shrink-0" />
+						) : (
+							<User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
 						)}
+						<span className="text-xs font-semibold truncate">{review.customerName}</span>
+						<span className="text-xs text-muted-foreground">•</span>
+						<span className="text-xs text-muted-foreground flex-shrink-0">{formatDate(review.date)}</span>
 					</div>
+					<div className="flex items-center gap-1 flex-shrink-0">
+						{review.flagged && <Flag className="h-3 w-3 text-destructive" />}
+						{!review.isRead && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+					</div>
+				</div>
 
-					{/* Actions */}
-					<div className="flex items-center gap-2 mt-3">
-						{!review.isRead && onToggleRead && (
-							<Button variant="outline" size="sm" onClick={() => onToggleRead(review.id)} className="text-xs">
-								Mark as read
-							</Button>
+				{/* Rating */}
+				<div className="flex items-center gap-1 mb-1.5">
+					{[...Array(5)].map((_, i) => (
+						<Star
+							key={i}
+							className={cn("h-3 w-3", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30")}
+						/>
+					))}
+				</div>
+
+				{/* Comment */}
+				<p className="text-xs leading-relaxed text-foreground/80 mb-2">{displayComment}</p>
+
+				{/* Actions Row */}
+				<div className="flex items-center justify-between gap-2">
+					<div className="flex items-center gap-1.5">
+						{commentNeedsExpansion && (
+							<button onClick={() => setIsCommentExpanded(!isCommentExpanded)} className="text-xs text-primary hover:underline">
+								{isCommentExpanded ? "Less" : "More"}
+							</button>
 						)}
 						{!review.responded && onRespond && (
-							<Button variant="default" size="sm" onClick={() => onRespond(review)} className="text-xs">
+							<button onClick={() => onRespond(review)} className="text-xs text-primary hover:underline">
 								Respond
-							</Button>
+							</button>
 						)}
 					</div>
+					<div className="flex items-center gap-1 text-xs text-muted-foreground">
+						<span className="truncate">{review.service}</span>
+					</div>
+				</div>
 
-					{/* Response Section - Mobile (at bottom with divider) */}
-					{review.responded && review.responseText && (
-						<>
-							<div className="border-t border-border mt-4 pt-3">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => setIsResponseExpanded(!isResponseExpanded)}
-									className="w-full justify-between h-auto py-2 px-2 text-xs"
-								>
-									<div className="flex items-center gap-2">
-										<MessageSquare className="h-3 w-3 text-primary" />
-										<span className="font-medium">Your response</span>
-										<span className="text-muted-foreground">• {formatDate(review.responseDate!)}</span>
-									</div>
-									{isResponseExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-								</Button>
-
-								{isResponseExpanded && (
-									<div className="mt-2 bg-muted/50 rounded-lg p-3">
-										<p className="text-sm text-foreground/90">{review.responseText}</p>
-									</div>
-								)}
+				{/* Response Section - Mobile (collapsed) */}
+				{review.responded && review.responseText && (
+					<div className="border-t border-border mt-2 pt-2">
+						<button
+							onClick={() => setIsResponseExpanded(!isResponseExpanded)}
+							className="flex items-center justify-between w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+						>
+							<div className="flex items-center gap-1.5">
+								<MessageSquare className="h-3 w-3" />
+								<span>Your response</span>
 							</div>
-						</>
-					)}
-				</CardContent>
-			</Card>
+							{isResponseExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+						</button>
+
+						{isResponseExpanded && (
+							<p className="text-xs leading-relaxed text-foreground/70 mt-2 pl-4 border-l-2 border-primary/20">{review.responseText}</p>
+						)}
+					</div>
+				)}
+			</div>
 		);
 	}
 
-	// Desktop Layout - Single Line
+	// Compact desktop layout
 	return (
 		<Card
 			className={cn(
-				"relative overflow-hidden transition-all duration-200 hover:shadow-md",
-				!review.isRead && "border-l-4 border-l-primary bg-primary/5"
+				"relative overflow-hidden transition-all duration-200 hover:shadow-sm",
+				!review.isRead && "border-l-2 border-l-primary bg-primary/5"
 			)}
 		>
-			<CardContent className="p-4">
-				<div className="flex items-start gap-4">
+			<CardContent className="p-3">
+				<div className="flex items-start gap-3">
 					{/* Customer Icon */}
 					<div className="flex-shrink-0">
 						{review.customerType === "client" ? (
-							<div className="rounded-full bg-primary/10 p-2">
-								<UserCheck className="h-4 w-4 text-primary" />
+							<div className="rounded-full bg-primary/10 p-1.5">
+								<UserCheck className="h-3.5 w-3.5 text-primary" />
 							</div>
 						) : (
-							<div className="rounded-full bg-muted p-2">
-								<User className="h-4 w-4 text-muted-foreground" />
+							<div className="rounded-full bg-muted p-1.5">
+								<User className="h-3.5 w-3.5 text-muted-foreground" />
 							</div>
 						)}
 					</div>
 
 					{/* Main Content */}
-					<div className="flex-1 min-w-0 space-y-2">
+					<div className="flex-1 min-w-0 space-y-1.5">
 						{/* First Row: Name, Rating, Date, Badges */}
-						<div className="flex items-center justify-between gap-3">
-							<div className="flex items-center gap-3 flex-1 min-w-0">
-								<h3 className="font-semibold text-sm truncate">{review.customerName}</h3>
-								<Badge variant="outline" className="text-xs flex-shrink-0">
-									{review.customerType === "client" ? "Client" : "Walk-in"}
-								</Badge>
-								<div className="flex items-center gap-1">
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-2 flex-1 min-w-0">
+								<span className="text-sm font-semibold truncate">{review.customerName}</span>
+								<div className="flex items-center gap-0.5">
 									{[...Array(5)].map((_, i) => (
 										<Star
 											key={i}
-											className={cn("h-3.5 w-3.5", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30")}
+											className={cn("h-3 w-3", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30")}
 										/>
 									))}
 								</div>
 								<span className="text-xs text-muted-foreground flex-shrink-0">{formatDate(review.date)}</span>
 							</div>
 
-							<div className="flex items-center gap-2 flex-shrink-0">
-								<Badge className={cn("text-xs", getSentimentColor(review.sentiment))}>{review.sentiment}</Badge>
-								{!review.isRead && (
-									<Badge variant="secondary" className="text-xs">
-										New
-									</Badge>
-								)}
+							<div className="flex items-center gap-1.5 flex-shrink-0">
 								{review.flagged && (
-									<Badge variant="destructive" className="text-xs">
-										<Flag className="h-3 w-3 mr-1" />
+									<Badge variant="destructive" className="text-xs h-5">
+										<Flag className="h-2.5 w-2.5 mr-0.5" />
 										Flagged
 									</Badge>
 								)}
+								{!review.isRead && <div className="w-2 h-2 rounded-full bg-primary" />}
 							</div>
 						</div>
 
-						{/* Second Row: Service & Staff */}
-						<div className="flex items-center gap-3 text-xs text-muted-foreground">
-							<div>
-								<span className="font-medium">Service:</span> {review.service}
-							</div>
-							<span>•</span>
-							<div>
-								<span className="font-medium">Staff:</span> {review.employee}
-							</div>
-						</div>
+						{/* Second Row: Comment */}
+						<p className="text-sm leading-relaxed text-foreground/80">{displayComment}</p>
 
-						{/* Third Row: Comment */}
-						<div className="space-y-1">
-							<p className="text-sm leading-relaxed text-foreground/90">{displayComment}</p>
+						{/* Third Row: Service/Staff + Actions */}
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-2 text-xs text-muted-foreground">
+								<span>{review.service}</span>
+								<span>•</span>
+								<span>{review.employee}</span>
+							</div>
+
 							<div className="flex items-center gap-2">
 								{commentNeedsExpansion && (
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-										className="h-auto py-1 px-2 text-xs"
+										className="h-6 px-2 text-xs"
 									>
-										{isCommentExpanded ? (
-											<>
-												<ChevronUp className="h-3 w-3 mr-1" />
-												Show less
-											</>
-										) : (
-											<>
-												<ChevronDown className="h-3 w-3 mr-1" />
-												Read more
-											</>
-										)}
+										{isCommentExpanded ? "Show less" : "Read more"}
 									</Button>
 								)}
 
-								{/* Response Expand Button - Desktop */}
 								{review.responded && review.responseText && (
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={() => setIsResponseExpanded(!isResponseExpanded)}
-										className="h-auto py-1 px-2 text-xs"
+										className="h-6 px-2 text-xs"
 									>
 										<MessageSquare className="h-3 w-3 mr-1" />
-										{isResponseExpanded ? "Hide response" : "Show your response"}
-										{isResponseExpanded ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+										{isResponseExpanded ? "Hide" : "Show"} response
+									</Button>
+								)}
+
+								{!review.responded && onRespond && (
+									<Button variant="default" size="sm" onClick={() => onRespond(review)} className="h-6 px-2 text-xs">
+										Respond
 									</Button>
 								)}
 							</div>
@@ -305,28 +226,14 @@ export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps)
 
 						{/* Response Content - Desktop (expandable) */}
 						{review.responded && review.responseText && isResponseExpanded && (
-							<div className="bg-muted/50 rounded-lg p-3 mt-2">
-								<div className="flex items-center gap-2 mb-2">
+							<div className="bg-muted/50 rounded-lg p-2.5 mt-1.5">
+								<div className="flex items-center gap-1.5 mb-1">
 									<MessageSquare className="h-3 w-3 text-primary" />
-									<p className="text-xs font-medium text-muted-foreground">Your response • {formatDate(review.responseDate!)}</p>
+									<span className="text-xs font-medium text-muted-foreground">Your response</span>
 								</div>
-								<p className="text-sm text-foreground/90">{review.responseText}</p>
+								<p className="text-sm text-foreground/80 leading-relaxed">{review.responseText}</p>
 							</div>
 						)}
-
-						{/* Actions */}
-						<div className="flex items-center gap-2">
-							{!review.isRead && onToggleRead && (
-								<Button variant="outline" size="sm" onClick={() => onToggleRead(review.id)} className="text-xs">
-									Mark as read
-								</Button>
-							)}
-							{!review.responded && onRespond && (
-								<Button variant="default" size="sm" onClick={() => onRespond(review)} className="text-xs">
-									Respond
-								</Button>
-							)}
-						</div>
 					</div>
 				</div>
 			</CardContent>
