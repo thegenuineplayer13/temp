@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Mic, Send, FileText, User, CheckCircle2, Flag, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { NoteForm, NoteType } from "@/features/core/types/types.dashboard-employee";
 import { noteFormSchema } from "@/features/core/schemas/schemas.dashboard-employee";
 
 interface AddNoteDialogProps {
    open: boolean;
    onOpenChange: (open: boolean) => void;
-   noteType: NoteType;
+   /** Initial note type. If not provided, defaults to "job" */
+   noteType?: NoteType;
 }
 
 const NOTE_CONFIG = {
@@ -20,6 +23,8 @@ const NOTE_CONFIG = {
       description: "Record any observations or details about the current job",
       placeholder: "e.g., Used two bottles of shampoo, client requested extra conditioning...",
       badge: "Job Note",
+      icon: FileText,
+      color: "text-primary",
       templates: ["Used extra product as needed", "Service took longer than expected", "Client very satisfied with results"],
    },
    client: {
@@ -27,45 +32,67 @@ const NOTE_CONFIG = {
       description: "Add a note to the client's profile",
       placeholder: "e.g., Prefers morning appointments, sensitive to strong scents...",
       badge: "Client Note",
+      icon: User,
+      color: "text-primary",
    },
    completion: {
       title: "Completion Notes",
       description: "Document what was completed and any follow-up needed",
       placeholder: "e.g., Completed full service, recommended follow-up in 3 weeks...",
       badge: "Completion",
+      icon: CheckCircle2,
+      color: "text-primary",
    },
    issue: {
       title: "Flag Issue",
       description: "Report a problem that requires manager attention",
       placeholder: "e.g., Equipment malfunction, customer complaint, safety concern...",
       badge: "Issue",
+      icon: Flag,
+      color: "text-red-600 dark:text-red-500",
    },
    upsell: {
       title: "Log Upsell Opportunity",
       description: "Record customer interest in additional services or products",
       placeholder: "e.g., Client interested in premium package, asked about hair treatment...",
       badge: "Upsell",
+      icon: TrendingUp,
+      color: "text-green-600 dark:text-green-500",
       templates: ["Client interested in premium service", "Asked about additional treatments", "Interested in product purchase"],
    },
 } as const;
 
-export function AddNoteDialog({ open, onOpenChange, noteType }: AddNoteDialogProps) {
+export function AddNoteDialog({ open, onOpenChange, noteType: initialNoteType = "job" }: AddNoteDialogProps) {
    const [isRecording, setIsRecording] = useState(false);
-   const config = NOTE_CONFIG[noteType];
+   const [selectedNoteType, setSelectedNoteType] = useState<NoteType>(initialNoteType);
+   const config = NOTE_CONFIG[selectedNoteType];
 
    const {
       register,
       handleSubmit,
       setValue,
       reset,
+      watch,
       formState: { errors, isValid },
    } = useForm<NoteForm>({
       resolver: zodResolver(noteFormSchema),
       defaultValues: {
-         type: noteType,
+         type: selectedNoteType,
          content: "",
       },
    });
+
+   // Update form when note type changes
+   useEffect(() => {
+      setValue("type", selectedNoteType);
+   }, [selectedNoteType, setValue]);
+
+   // Reset to initial note type when dialog opens
+   useEffect(() => {
+      if (open) {
+         setSelectedNoteType(initialNoteType);
+      }
+   }, [open, initialNoteType]);
 
    const onSubmit = (data: NoteForm) => {
       console.log(`${data.type} note:`, data.content);
@@ -91,12 +118,38 @@ export function AddNoteDialog({ open, onOpenChange, noteType }: AddNoteDialogPro
       <Dialog open={open} onOpenChange={handleClose}>
          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-               <DialogTitle>{config.title}</DialogTitle>
+               <DialogTitle className="flex items-center gap-2">
+                  <config.icon className={cn("h-5 w-5", config.color)} />
+                  {config.title}
+               </DialogTitle>
                <DialogDescription>{config.description}</DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
                <div className="space-y-4 py-4">
+                  <div>
+                     <label className="text-sm font-medium mb-2 block">Note Type</label>
+                     <Select value={selectedNoteType} onValueChange={(value) => setSelectedNoteType(value as NoteType)}>
+                        <SelectTrigger className="w-full">
+                           <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {(Object.keys(NOTE_CONFIG) as NoteType[]).map((type) => {
+                              const typeConfig = NOTE_CONFIG[type];
+                              const Icon = typeConfig.icon;
+                              return (
+                                 <SelectItem key={type} value={type}>
+                                    <div className="flex items-center gap-2">
+                                       <Icon className={cn("h-4 w-4", typeConfig.color)} />
+                                       <span>{typeConfig.badge}</span>
+                                    </div>
+                                 </SelectItem>
+                              );
+                           })}
+                        </SelectContent>
+                     </Select>
+                  </div>
+
                   <div>
                      <Textarea {...register("content")} placeholder={config.placeholder} rows={6} className="resize-none" />
                      {errors.content && <p className="text-sm text-destructive mt-1">{errors.content.message}</p>}
@@ -149,9 +202,9 @@ export function AddNoteDialog({ open, onOpenChange, noteType }: AddNoteDialogPro
                      type="submit"
                      disabled={!isValid}
                      className={
-                        noteType === "issue"
+                        selectedNoteType === "issue"
                            ? "bg-red-600 hover:bg-red-700 text-white"
-                           : noteType === "upsell"
+                           : selectedNoteType === "upsell"
                            ? "bg-green-600 hover:bg-green-700 text-white"
                            : ""
                      }
