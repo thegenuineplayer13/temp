@@ -43,4 +43,4 @@ export const workingHoursSchema = z.object({
    isWorkingDay: z.boolean(),
 });
 
-export const viewModeSchema = z.enum(["day", "week", "month"]);
+export const viewModeSchema = z.enum(["now", "day", "week", "month"]);

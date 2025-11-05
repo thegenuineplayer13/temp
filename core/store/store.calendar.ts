@@ -34,6 +34,8 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
    previousPeriod: () => {
       const { currentDate, viewMode } = get();
+      if (viewMode === "now") return; // No navigation for "now" view
+
       const newDate = new Date(currentDate);
 
       switch (viewMode) {
@@ -53,6 +55,8 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
    nextPeriod: () => {
       const { currentDate, viewMode } = get();
+      if (viewMode === "now") return; // No navigation for "now" view
+
       const newDate = new Date(currentDate);
 
       switch (viewMode) {
