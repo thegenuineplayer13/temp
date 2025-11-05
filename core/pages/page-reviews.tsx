@@ -445,7 +445,7 @@ export default function ReviewsPage() {
 
 					{/* Stats Sidebar - Right Side (4 columns, sticky) */}
 					<div className="col-span-4">
-						<div className="sticky top-24">
+						<div className="sticky top-24 z-10">
 							{/* Review Stats Breakdown */}
 							<ReviewStatsBreakdown
 								reviews={filteredReviews}
