@@ -23,6 +23,8 @@ import {
 	GraduationCap,
 	Bell,
 	ClipboardList,
+	AlertCircle,
+	FileCheck,
 } from "lucide-react";
 import type { AlertType, RequestType, PriorityLevel } from "@/features/core/types/types.notifications";
 
@@ -70,6 +72,20 @@ export function getRequestTypeIcon(type: RequestType) {
 	};
 
 	return iconMap[type] || ClipboardList;
+}
+
+// ============================================================================
+// Urgency Indicators (for urgent and high priority notifications)
+// ============================================================================
+
+export function getUrgencyIndicatorIcon(category: "alert" | "request") {
+	// Alerts get an exclamation mark (AlertCircle)
+	// Requests get a check/approval icon (FileCheck)
+	return category === "alert" ? AlertCircle : FileCheck;
+}
+
+export function shouldShowUrgencyIndicator(priority: PriorityLevel): boolean {
+	return priority === "urgent" || priority === "high";
 }
 
 // ============================================================================

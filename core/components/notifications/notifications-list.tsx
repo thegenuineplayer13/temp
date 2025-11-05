@@ -7,6 +7,8 @@ import {
 	getRequestTypeIcon,
 	getPriorityColor,
 	formatRelativeTime,
+	getUrgencyIndicatorIcon,
+	shouldShowUrgencyIndicator,
 } from "./notification-utils";
 
 interface NotificationsListProps {
@@ -36,6 +38,10 @@ export function NotificationsList({
 						? notification.status === "resolved"
 						: notification.status === "approved" || notification.status === "rejected";
 
+					// Get urgency indicator
+					const showUrgencyIndicator = !isCompleted && shouldShowUrgencyIndicator(notification.priority);
+					const UrgencyIcon = getUrgencyIndicatorIcon(notification.category);
+
 					return (
 						<button
 							key={notification.id}
@@ -49,18 +55,13 @@ export function NotificationsList({
 							)}
 						>
 							<div className="flex items-start gap-3">
-								{/* Icon with priority color */}
-								<div
-									className={cn(
-										"rounded-full p-2 flex-shrink-0",
-										priorityColors.bg,
-									)}
-								>
-									<Icon className={cn("h-4 w-4", priorityColors.text)} />
+								{/* Icon with neutral background */}
+								<div className="rounded-full p-2 flex-shrink-0 bg-muted">
+									<Icon className="h-4 w-4 text-foreground" />
 								</div>
 
 								<div className="flex-1 min-w-0">
-									{/* Title and timestamp */}
+									{/* Title and timestamp with urgency indicator */}
 									<div className="flex items-start justify-between gap-2 mb-1">
 										<h3
 											className={cn(
@@ -70,9 +71,18 @@ export function NotificationsList({
 										>
 											{notification.title}
 										</h3>
-										<span className="text-xs text-muted-foreground flex-shrink-0">
-											{formatRelativeTime(notification.createdAt)}
-										</span>
+										<div className="flex items-center gap-2 flex-shrink-0">
+											<span className="text-xs text-muted-foreground">
+												{formatRelativeTime(notification.createdAt)}
+											</span>
+											{/* Subtle urgency indicator for urgent/high priority */}
+											{showUrgencyIndicator && (
+												<UrgencyIcon
+													className={cn("h-4 w-4", priorityColors.text)}
+													aria-label={`${notification.priority} priority`}
+												/>
+											)}
+										</div>
 									</div>
 
 									{/* Description preview */}
@@ -80,42 +90,24 @@ export function NotificationsList({
 										{notification.description}
 									</p>
 
-									{/* Badges */}
+									{/* Status info */}
 									<div className="flex items-center gap-2 flex-wrap">
-										{/* Category badge */}
-										<Badge
-											variant="outline"
-											className={cn(
-												"text-xs",
-												isAlert
-													? "border-orange-500/50 text-orange-600 dark:text-orange-500"
-													: "border-blue-500/50 text-blue-600 dark:text-blue-500",
-											)}
-										>
-											{isAlert ? "Alert" : "Request"}
-										</Badge>
-
-										{/* Priority badge */}
-										<Badge
-											variant={isCompleted ? "secondary" : "default"}
-											className={cn("text-xs", !isCompleted && priorityColors.badge)}
-										>
-											{isCompleted
-												? isAlert
-													? "Resolved"
-													: notification.status === "approved"
-														? "Approved"
-														: "Rejected"
-												: notification.priority.toUpperCase()}
-										</Badge>
-
-										{/* Show who resolved/approved if completed */}
+										{/* Show status for completed notifications */}
 										{isCompleted && (
-											<span className="text-xs text-muted-foreground">
-												{isAlert
-													? `by ${notification.resolvedBy?.name || "System"}`
-													: `by ${notification.reviewedBy?.name || "Manager"}`}
-											</span>
+											<>
+												<Badge variant="secondary" className="text-xs">
+													{isAlert
+														? "Resolved"
+														: notification.status === "approved"
+															? "Approved"
+															: "Rejected"}
+												</Badge>
+												<span className="text-xs text-muted-foreground">
+													{isAlert
+														? `by ${notification.resolvedBy?.name || "System"}`
+														: `by ${notification.reviewedBy?.name || "Manager"}`}
+												</span>
+											</>
 										)}
 									</div>
 								</div>
