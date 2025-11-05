@@ -11,7 +11,7 @@ import {
    mockCalendarAppointments,
    mockTimeOffEntries,
    mockWorkingHours,
-} from "@/mock/calendar-viewer-mock";
+} from "@/mock/calendar-mock";
 
 export const QUERY_KEYS = {
    employees: ["calendar-employees"],
