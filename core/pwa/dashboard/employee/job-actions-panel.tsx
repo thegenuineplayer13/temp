@@ -82,13 +82,13 @@ export function JobActionsPanel() {
                <button
                   onClick={() => setFabOpen(!fabOpen)}
                   className={cn(
-                     "rounded-full p-3 shadow-lg transition-all hover:scale-105 border backdrop-blur-md",
+                     "rounded-full p-3.5 shadow-xl transition-all hover:scale-110 border-2",
                      fabOpen
-                        ? "bg-card/90 border-border rotate-45 hover:bg-card"
-                        : "bg-card/80 border-border/50 hover:bg-card/90"
+                        ? "bg-background border-border rotate-45 hover:bg-accent"
+                        : "bg-primary/90 border-primary hover:bg-primary"
                   )}
                >
-                  {fabOpen ? <X className="h-5 w-5 text-muted-foreground" /> : <Plus className="h-5 w-5 text-muted-foreground" />}
+                  {fabOpen ? <X className="h-5 w-5 text-foreground" /> : <Plus className="h-5 w-5 text-primary-foreground" />}
                </button>
             </div>
 

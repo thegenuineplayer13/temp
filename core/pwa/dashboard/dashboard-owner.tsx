@@ -113,7 +113,7 @@ export function OwnerDashboard() {
                </div>
             </div>
 
-            <ScrollActionPanel actions={ownerActions} />
+            <ScrollActionPanel actions={ownerActions} forceFloating />
             <AnnouncementDialog open={announcementDialogOpen} onOpenChange={setAnnouncementDialogOpen} />
          </>
       );
@@ -148,7 +148,7 @@ export function OwnerDashboard() {
                />
             </div>
 
-            <ScrollActionPanel actions={ownerActions} />
+            <ScrollActionPanel actions={ownerActions} forceFloating />
             <AnnouncementDialog open={announcementDialogOpen} onOpenChange={setAnnouncementDialogOpen} />
          </div>
       </>
