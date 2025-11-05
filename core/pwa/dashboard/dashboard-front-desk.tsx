@@ -10,6 +10,7 @@ import { WalkInQueue } from "./front-desk/walk-in-queue";
 import { CustomerQuickView } from "./front-desk/customer-quick-view";
 import { AppointmentActionsDialog } from "./front-desk/appointment-actions-dialog";
 import { RegisterCustomerDialog } from "./front-desk/register-customer-dialog";
+import { CreateAppointmentWizard } from "./front-desk/create-appointment-wizard";
 import type { NewCustomer } from "@/features/core/types/types.dashboard-front-desk";
 
 type MobileView = "dashboard" | "queue";
@@ -20,7 +21,7 @@ export default function FrontDeskDashboard() {
 
    const { data: appointments = [] } = useAppointments();
 
-   const { openCustomerView, openActionDialog, openRegisterDialog, closeCustomerView } = useFrontDeskStore();
+   const { openCustomerView, openActionDialog, openRegisterDialog, closeCustomerView, openBookingWizard } = useFrontDeskStore();
 
    const handleCheckIn = useCallback(
       (appointmentId: string) => {
@@ -67,9 +68,10 @@ export default function FrontDeskDashboard() {
    const handleBookAppointment = useCallback(
       (customerId: string) => {
          console.log("Book appointment for customer:", customerId);
+         openBookingWizard();
          closeCustomerView();
       },
-      [closeCustomerView]
+      [openBookingWizard, closeCustomerView]
    );
 
    const handleAddToWalkIn = useCallback(
@@ -89,7 +91,11 @@ export default function FrontDeskDashboard() {
 
    return (
       <div className="min-h-screen bg-background">
-         <SearchBar onSelectCustomer={openCustomerView} onRegisterClick={openRegisterDialog} />
+         <SearchBar
+            onSelectCustomer={openCustomerView}
+            onRegisterClick={openRegisterDialog}
+            onBookAppointmentClick={openBookingWizard}
+         />
 
          {isMobile && (
             <div className="sticky top-[73px] z-40 bg-background border-b">
@@ -161,6 +167,8 @@ export default function FrontDeskDashboard() {
          <AppointmentActionsDialog />
 
          <RegisterCustomerDialog onRegister={handleRegisterCustomer} />
+
+         <CreateAppointmentWizard />
       </div>
    );
 }

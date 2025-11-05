@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, User, Phone, UserPlus } from "lucide-react";
+import { Search, User, Phone, UserPlus, CalendarPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,9 +9,10 @@ import type { Customer } from "@/features/core/types/types.dashboard-front-desk"
 interface SearchBarProps {
    onSelectCustomer: (customer: Customer) => void;
    onRegisterClick: () => void;
+   onBookAppointmentClick: () => void;
 }
 
-export function SearchBar({ onSelectCustomer, onRegisterClick }: SearchBarProps) {
+export function SearchBar({ onSelectCustomer, onRegisterClick, onBookAppointmentClick }: SearchBarProps) {
    const { data: customers = [] } = useCustomers();
    const [searchQuery, setSearchQuery] = useState("");
    const [suggestions, setSuggestions] = useState<Customer[]>([]);
@@ -124,7 +125,19 @@ export function SearchBar({ onSelectCustomer, onRegisterClick }: SearchBarProps)
                   )}
                </div>
 
-               <Button onClick={onRegisterClick} className="h-11 md:h-12 px-4 shadow-md flex-shrink-0">
+               <Button
+                  onClick={onBookAppointmentClick}
+                  className="h-11 md:h-12 px-4 shadow-md flex-shrink-0 bg-primary hover:bg-primary/90"
+               >
+                  <CalendarPlus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Book</span>
+               </Button>
+
+               <Button
+                  onClick={onRegisterClick}
+                  variant="outline"
+                  className="h-11 md:h-12 px-4 shadow-md flex-shrink-0"
+               >
                   <UserPlus className="h-4 w-4 md:mr-2" />
                   <span className="hidden md:inline">Register</span>
                </Button>

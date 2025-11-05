@@ -1,4 +1,4 @@
-import { useQuery } from "@/mock/mock-react-query";
+import { useQuery, useMutation, useQueryClient } from "@/mock/mock-react-query";
 import {
    customerSchema,
    staffSchema,
@@ -68,5 +68,33 @@ export function useCustomerAppointments(customerId: string) {
          return appointments.filter((apt) => apt.customerId === customerId || apt.customerName === customerId);
       },
       enabled: !!appointments && !!customerId,
+   });
+}
+
+/**
+ * Create multiple linked appointments
+ */
+export function useCreateAppointments() {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: async (appointments: Omit<Appointment, "id">[]) => {
+         // Simulate API call
+         await new Promise((resolve) => setTimeout(resolve, 800));
+
+         // In a real app, this would make an API call to create the appointments
+         // For now, we'll just generate IDs and return the created appointments
+         const createdAppointments = appointments.map((apt) => ({
+            ...apt,
+            id: crypto.randomUUID(),
+         }));
+
+         console.log("Created appointments:", createdAppointments);
+         return createdAppointments;
+      },
+      onSuccess: () => {
+         // Invalidate queries to refetch data
+         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.appointments });
+      },
    });
 }
