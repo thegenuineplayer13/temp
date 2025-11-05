@@ -1,5 +1,4 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, UserPlus, DollarSign } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ClientsStatsCardsProps {
   totalClients: number;
@@ -19,40 +18,28 @@ export function ClientsStatsCards({
   return (
     <div className="grid gap-4 md:grid-cols-4">
       <Card>
-        <CardHeader className="pb-3">
-          <CardDescription className="flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            Total Clients
-          </CardDescription>
-          <CardTitle className="text-3xl">{totalClients}</CardTitle>
-        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Total Clients</div>
+          <div className="text-2xl font-semibold mt-2">{totalClients}</div>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader className="pb-3">
-          <CardDescription className="flex items-center gap-1">
-            <UserCheck className="h-3 w-3" />
-            Registered
-          </CardDescription>
-          <CardTitle className="text-3xl">{registeredClients}</CardTitle>
-        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Registered</div>
+          <div className="text-2xl font-semibold mt-2">{registeredClients}</div>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader className="pb-3">
-          <CardDescription className="flex items-center gap-1">
-            <UserPlus className="h-3 w-3" />
-            Walk-in
-          </CardDescription>
-          <CardTitle className="text-3xl">{walkInClients}</CardTitle>
-        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Walk-in</div>
+          <div className="text-2xl font-semibold mt-2">{walkInClients}</div>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader className="pb-3">
-          <CardDescription className="flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />
-            Avg Spending
-          </CardDescription>
-          <CardTitle className="text-3xl">{formatCurrency(averageSpending)}</CardTitle>
-        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Avg Spending</div>
+          <div className="text-2xl font-semibold mt-2">{formatCurrency(averageSpending)}</div>
+        </CardContent>
       </Card>
     </div>
   );
