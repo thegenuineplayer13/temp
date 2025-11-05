@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
@@ -19,7 +19,9 @@ import { ServiceBreakdown } from "./owner/service-breakdown";
 import { CustomerFeedback } from "./owner/customer-feedback";
 import { RevenueTrendChart } from "./owner/revenue-trend-chart";
 import { StaffPerformanceTable } from "./owner/staff-performance-table";
-import { FloatingActionButtons } from "./owner/floating-action-buttons";
+import { ScrollActionPanel } from "@/features/core/components/shared/scroll-action-panel";
+import { AnnouncementDialog } from "./owner/announcement-dialog";
+import { Megaphone, FileText } from "lucide-react";
 import { DISPLAY_LIMITS } from "../../constants/constants.dashboard-owner";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
@@ -27,6 +29,7 @@ export function OwnerDashboard() {
    const isMobile = useIsMobile();
    const navigate = useNavigate();
    const { dismissedAlerts, dismissAlert } = useOwnerStore();
+   const [announcementDialogOpen, setAnnouncementDialogOpen] = useState(false);
 
    // Queries
    const { data: revenueData, refetch: refetchRevenue } = useRevenueData();
@@ -49,12 +52,30 @@ export function OwnerDashboard() {
    }, [navigate]);
 
    const handleSendAnnouncement = useCallback(() => {
-      console.log("Send announcement");
+      setAnnouncementDialogOpen(true);
    }, []);
 
    const handleGenerateReport = useCallback(() => {
       console.log("Generate and share report");
+      // TODO: Implement report generation
    }, []);
+
+   const ownerActions = [
+      {
+         icon: Megaphone,
+         label: "Announcement",
+         color: "text-primary",
+         bgColor: "bg-primary/10 hover:bg-primary/20",
+         onClick: handleSendAnnouncement,
+      },
+      {
+         icon: FileText,
+         label: "Report",
+         color: "text-secondary",
+         bgColor: "bg-secondary/10 hover:bg-secondary/20",
+         onClick: handleGenerateReport,
+      },
+   ];
 
    if (!revenueData || !jobsData || !staffData || !alertsData || !reviewsData) {
       return (
@@ -92,7 +113,8 @@ export function OwnerDashboard() {
                </div>
             </div>
 
-            <FloatingActionButtons onAnnouncement={handleSendAnnouncement} onReport={handleGenerateReport} />
+            <ScrollActionPanel actions={ownerActions} />
+            <AnnouncementDialog open={announcementDialogOpen} onOpenChange={setAnnouncementDialogOpen} />
          </>
       );
    }
@@ -126,7 +148,8 @@ export function OwnerDashboard() {
                />
             </div>
 
-            <FloatingActionButtons onAnnouncement={handleSendAnnouncement} onReport={handleGenerateReport} />
+            <ScrollActionPanel actions={ownerActions} />
+            <AnnouncementDialog open={announcementDialogOpen} onOpenChange={setAnnouncementDialogOpen} />
          </div>
       </>
    );

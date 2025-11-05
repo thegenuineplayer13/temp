@@ -82,16 +82,18 @@ export function JobActionsPanel() {
                <button
                   onClick={() => setFabOpen(!fabOpen)}
                   className={cn(
-                     "rounded-full p-4 shadow-2xl transition-all hover:scale-110 border-2 border-background",
-                     fabOpen ? "bg-muted rotate-45" : "bg-primary hover:bg-primary/90"
+                     "rounded-full p-3 shadow-lg transition-all hover:scale-105 border backdrop-blur-md",
+                     fabOpen
+                        ? "bg-card/90 border-border rotate-45 hover:bg-card"
+                        : "bg-card/80 border-border/50 hover:bg-card/90"
                   )}
                >
-                  {fabOpen ? <X className="h-6 w-6 text-foreground" /> : <Plus className="h-6 w-6 text-primary-foreground" />}
+                  {fabOpen ? <X className="h-5 w-5 text-muted-foreground" /> : <Plus className="h-5 w-5 text-muted-foreground" />}
                </button>
             </div>
 
             {fabOpen && (
-               <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" onClick={() => setFabOpen(false)} />
+               <div className="fixed inset-0 bg-background/60 backdrop-blur-[2px] z-40" onClick={() => setFabOpen(false)} />
             )}
 
             <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
