@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Star, User, UserCheck, ChevronDown, ChevronUp, MessageSquare, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,7 +13,7 @@ interface ReviewCardProps {
 	onRespond?: (review: Review) => void;
 }
 
-const CHARACTER_LIMIT = 120;
+const CHARACTER_LIMIT = 100;
 
 export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps) {
 	const isMobile = useIsMobile();
@@ -31,98 +32,95 @@ export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps)
 
 		if (diffDays === 0) return "Today";
 		if (diffDays === 1) return "Yesterday";
-		if (diffDays < 7) return `${diffDays}d ago`;
+		if (diffDays < 7) return `${diffDays}d`;
 
 		return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 	};
 
 	if (isMobile) {
-		// Ultra-compact mobile layout
+		// Super compact mobile layout
 		return (
 			<div
 				className={cn(
-					"p-2.5 rounded-lg border bg-card transition-all duration-200",
-					!review.isRead && "border-l-2 border-l-primary bg-primary/5"
+					"px-2.5 py-2 rounded-md border bg-card/50 backdrop-blur-sm",
+					!review.isRead && "border-l-2 border-l-primary"
 				)}
 			>
-				{/* Header - Single Line */}
-				<div className="flex items-center justify-between gap-2 mb-1">
-					<div className="flex items-center gap-1.5 flex-1 min-w-0">
-						{review.customerType === "client" ? (
-							<UserCheck className="h-3 w-3 text-primary flex-shrink-0" />
-						) : (
-							<User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+				{/* Single compact row */}
+				<div className="flex items-start gap-2">
+					{/* Icon */}
+					{review.customerType === "client" ? (
+						<UserCheck className="h-3 w-3 text-primary flex-shrink-0 mt-0.5" />
+					) : (
+						<User className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+					)}
+
+					{/* Content */}
+					<div className="flex-1 min-w-0 space-y-0.5">
+						{/* Name + Date + Stars in one line */}
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-1.5 flex-1 min-w-0">
+								<span className="text-xs font-semibold truncate">{review.customerName}</span>
+								<span className="text-[10px] text-muted-foreground flex-shrink-0">• {formatDate(review.date)}</span>
+							</div>
+							<div className="flex items-center gap-0.5 flex-shrink-0">
+								{[...Array(5)].map((_, i) => (
+									<Star
+										key={i}
+										className={cn("h-2.5 w-2.5", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/20")}
+									/>
+								))}
+							</div>
+						</div>
+
+						{/* Comment - compact */}
+						<p className="text-[11px] leading-snug text-foreground/70 line-clamp-2">{displayComment}</p>
+
+						{/* Actions - inline */}
+						<div className="flex items-center gap-2 pt-0.5">
+							{commentNeedsExpansion && (
+								<button
+									onClick={() => setIsCommentExpanded(!isCommentExpanded)}
+									className="text-[10px] text-primary font-medium"
+								>
+									{isCommentExpanded ? "Less" : "More"}
+								</button>
+							)}
+							{!review.responded && onRespond && (
+								<button onClick={() => onRespond(review)} className="text-[10px] text-primary font-medium">
+									Reply
+								</button>
+							)}
+							{review.responded && review.responseText && (
+								<button
+									onClick={() => setIsResponseExpanded(!isResponseExpanded)}
+									className="text-[10px] text-muted-foreground font-medium"
+								>
+									{isResponseExpanded ? "Hide reply" : "View reply"}
+								</button>
+							)}
+							<span className="text-[10px] text-muted-foreground ml-auto">{review.service}</span>
+						</div>
+
+						{/* Response */}
+						{review.responded && review.responseText && isResponseExpanded && (
+							<div className="pt-1 mt-1 border-t border-border/50">
+								<p className="text-[10px] leading-snug text-foreground/60">{review.responseText}</p>
+							</div>
 						)}
-						<span className="text-xs font-semibold truncate">{review.customerName}</span>
-						<span className="text-xs text-muted-foreground">•</span>
-						<span className="text-xs text-muted-foreground flex-shrink-0">{formatDate(review.date)}</span>
 					</div>
-					<div className="flex items-center gap-1 flex-shrink-0">
-						{review.flagged && <Flag className="h-3 w-3 text-destructive" />}
+
+					{/* Indicators */}
+					<div className="flex flex-col items-end gap-1 flex-shrink-0">
+						{review.flagged && <Flag className="h-2.5 w-2.5 text-destructive" />}
 						{!review.isRead && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
 					</div>
 				</div>
-
-				{/* Rating */}
-				<div className="flex items-center gap-1 mb-1">
-					{[...Array(5)].map((_, i) => (
-						<Star
-							key={i}
-							className={cn("h-3 w-3", i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground/30")}
-						/>
-					))}
-				</div>
-
-				{/* Comment */}
-				<p className="text-xs leading-relaxed text-foreground/80 mb-1.5">{displayComment}</p>
-
-				{/* Actions Row */}
-				<div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
-					<div className="flex items-center gap-2">
-						{commentNeedsExpansion && (
-							<button
-								onClick={() => setIsCommentExpanded(!isCommentExpanded)}
-								className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-							>
-								{isCommentExpanded ? "Less" : "More"}
-							</button>
-						)}
-						{!review.responded && onRespond && (
-							<button
-								onClick={() => onRespond(review)}
-								className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-							>
-								Respond
-							</button>
-						)}
-					</div>
-					<span className="text-xs text-muted-foreground truncate">{review.service}</span>
-				</div>
-
-				{/* Response Section - Mobile (collapsed) */}
-				{review.responded && review.responseText && (
-					<div className="border-t border-border/50 mt-1.5 pt-1.5">
-						<button
-							onClick={() => setIsResponseExpanded(!isResponseExpanded)}
-							className="flex items-center justify-between w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
-						>
-							<div className="flex items-center gap-1.5">
-								<MessageSquare className="h-3 w-3" />
-								<span>Your response</span>
-							</div>
-							{isResponseExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-						</button>
-
-						{isResponseExpanded && (
-							<p className="text-xs leading-relaxed text-foreground/70 mt-1.5 pl-4 border-l-2 border-primary/20">{review.responseText}</p>
-						)}
-					</div>
-				)}
 			</div>
 		);
 	}
 
-	// Compact desktop layout
+	// Desktop layout
 	return (
 		<Card
 			className={cn(
@@ -177,7 +175,7 @@ export function ReviewCard({ review, onToggleRead, onRespond }: ReviewCardProps)
 						<p className="text-sm leading-relaxed text-foreground/80">{displayComment}</p>
 
 						{/* Third Row: Meta + Actions */}
-						<div className="flex items-center justify-between gap-3 pt-1 border-t border-border/50">
+						<div className="flex items-center justify-between gap-3 pt-2 border-t border-border/50">
 							<div className="flex items-center gap-2 text-xs text-muted-foreground">
 								<span>{review.service}</span>
 								<span>•</span>
