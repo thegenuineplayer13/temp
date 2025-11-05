@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { Briefcase } from "lucide-react";
-import { ServicesStatsCards } from "../components/services/services-stats-cards";
+import { ServicesFilters } from "../components/services/services-filters";
 import { SpecializationList } from "../components/services/specialization-list";
 import { ServiceList } from "../components/services/service-list";
 import { SpecializationFormDialog } from "../components/services/specialization-form-dialog";
@@ -103,19 +102,9 @@ export default function ServicesPage() {
     );
   }
 
-  // Calculate stats
+  // Calculate stats after loading is complete
   const totalServices = services.length;
   const totalSpecializations = specializations.length;
-  const avgPrice = useMemo(() => {
-    return services.length > 0
-      ? Math.round(services.reduce((sum, s) => sum + s.price, 0) / services.length)
-      : 0;
-  }, [services]);
-  const avgDuration = useMemo(() => {
-    return services.length > 0
-      ? Math.round(services.reduce((sum, s) => sum + (s.duration || 0), 0) / services.length)
-      : 0;
-  }, [services]);
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
@@ -133,12 +122,10 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <ServicesStatsCards
+      {/* Filters */}
+      <ServicesFilters
         totalSpecializations={totalSpecializations}
         totalServices={totalServices}
-        avgPrice={avgPrice}
-        avgDuration={avgDuration}
       />
 
       {/* Main Content */}
