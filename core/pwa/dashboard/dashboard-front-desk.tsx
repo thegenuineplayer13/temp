@@ -21,7 +21,7 @@ export default function FrontDeskDashboard() {
 
    const { data: appointments = [] } = useAppointments();
 
-   const { openCustomerView, openActionDialog, openRegisterDialog, closeCustomerView, openBookingWizard } = useFrontDeskStore();
+   const { openCustomerView, openActionDialog, openRegisterDialog, closeCustomerView, openBookingWizard, selectedCustomer } = useFrontDeskStore();
 
    const handleCheckIn = useCallback(
       (appointmentId: string) => {
@@ -68,10 +68,10 @@ export default function FrontDeskDashboard() {
    const handleBookAppointment = useCallback(
       (customerId: string) => {
          console.log("Book appointment for customer:", customerId);
-         openBookingWizard();
+         openBookingWizard(selectedCustomer || undefined);
          closeCustomerView();
       },
-      [openBookingWizard, closeCustomerView]
+      [openBookingWizard, closeCustomerView, selectedCustomer]
    );
 
    const handleAddToWalkIn = useCallback(

@@ -39,7 +39,7 @@ interface FrontDeskState {
    isBookingWizardOpen: boolean;
    bookingStep: BookingStep;
    bookingData: BookingData;
-   openBookingWizard: () => void;
+   openBookingWizard: (customer?: Customer) => void;
    closeBookingWizard: () => void;
    setBookingStep: (step: BookingStep) => void;
    nextBookingStep: () => void;
@@ -120,14 +120,14 @@ export const useFrontDeskStore = create<FrontDeskState>((set) => ({
       bookingGroupId: crypto.randomUUID(),
    },
 
-   openBookingWizard: () =>
+   openBookingWizard: (customer?: Customer) =>
       set({
          isBookingWizardOpen: true,
          bookingStep: 1,
          bookingData: {
-            clientId: null,
-            clientName: null,
-            clientPhone: null,
+            clientId: customer?.id || null,
+            clientName: customer?.name || null,
+            clientPhone: customer?.phone || null,
             serviceCart: [],
             totalDuration: 0,
             totalPrice: 0,
