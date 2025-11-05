@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlusCircle, Users } from "lucide-react";
-import { ClientsStatsCards } from "../components/clients/clients-stats-cards";
 import { ClientsFilters } from "../components/clients/clients-filters";
 import { ClientsTable } from "../components/clients/clients-table";
 import { ClientsFormDialog } from "../components/clients/clients-form-dialog";
@@ -13,7 +12,7 @@ import { ClientsDeleteDialog } from "../components/clients/clients-delete-dialog
 import { useClientsStore } from "../store/store.clients";
 import { useClients } from "../hooks/queries/queries.clients";
 import { useServices } from "../hooks/queries/queries.services";
-import type { ClientForm } from "../types/types.clients";
+import type { Client, ClientForm } from "../types/types.clients";
 
 export default function ClientsPage() {
   const { data: clients = [], isLoading: loadingClients } = useClients();
@@ -44,14 +43,11 @@ export default function ClientsPage() {
   const stats = useMemo(() => {
     const registeredClients = clients.filter((c) => c.type === "registered").length;
     const walkInClients = clients.filter((c) => c.type === "walk-in").length;
-    const totalRevenue = clients.reduce((sum, c) => sum + c.totalSpent, 0);
-    const averageSpending = clients.length > 0 ? Math.round(totalRevenue / clients.length) : 0;
 
     return {
       totalClients: clients.length,
       registeredClients,
       walkInClients,
-      averageSpending,
     };
   }, [clients]);
 
@@ -75,25 +71,16 @@ export default function ClientsPage() {
     store.openFormDialog(null);
   };
 
-  const handleEditClient = (clientId: string) => {
-    const client = clients.find((c) => c.id === clientId);
-    if (client) {
-      store.openFormDialog(client);
-    }
+  const handleEditClient = (client: Client) => {
+    store.openFormDialog(client);
   };
 
-  const handleViewDetails = (clientId: string) => {
-    const client = clients.find((c) => c.id === clientId);
-    if (client) {
-      store.openViewDialog(client);
-    }
+  const handleViewDetails = (client: Client) => {
+    store.openViewDialog(client);
   };
 
-  const handleDeleteClient = (clientId: string) => {
-    const client = clients.find((c) => c.id === clientId);
-    if (client) {
-      store.openDeleteDialog(client);
-    }
+  const handleDeleteClient = (client: Client) => {
+    store.openDeleteDialog(client);
   };
 
   const handleSubmit = (data: ClientForm) => {
@@ -139,17 +126,12 @@ export default function ClientsPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <ClientsStatsCards
-        totalClients={stats.totalClients}
-        registeredClients={stats.registeredClients}
-        walkInClients={stats.walkInClients}
-        averageSpending={stats.averageSpending}
-        formatCurrency={formatCurrency}
-      />
-
       {/* Filters */}
-      <ClientsFilters />
+      <ClientsFilters
+        totalClients={stats.totalClients}
+        registeredCount={stats.registeredClients}
+        walkInCount={stats.walkInClients}
+      />
 
       {/* Table */}
       <Card>
@@ -160,7 +142,7 @@ export default function ClientsPage() {
             currentPage={store.currentPage}
             itemsPerPage={store.itemsPerPage}
             totalPages={totalPages}
-            totalClients={filteredClients.length}
+            totalFiltered={filteredClients.length}
             onView={handleViewDetails}
             onEdit={handleEditClient}
             onDelete={handleDeleteClient}

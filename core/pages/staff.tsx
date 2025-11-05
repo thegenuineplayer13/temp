@@ -1,25 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlusCircle, Users } from "lucide-react";
-import { StaffStatsCards } from "../components/staff/staff-stats-cards";
+import { StaffFilters } from "../components/staff/staff-filters";
 import { StaffTable } from "../components/staff/staff-table";
 import { StaffFormDialog } from "../components/staff/staff-form-dialog";
 import { StaffDeleteDialog } from "../components/staff/staff-delete-dialog";
 import { useEmployees } from "../hooks/queries/queries.staff";
 import { useSpecializations } from "../hooks/queries/queries.services";
-import type { Employee, EmployeeForm } from "../types/types.staff";
+import type { Employee, EmployeeForm, EmployeeStatus } from "../types/types.staff";
 
 export default function StaffPage() {
   const { data: employees = [], isLoading: loadingEmployees } = useEmployees();
   const { data: specializations = [], isLoading: loadingSpecs } = useSpecializations();
 
+  const [filterStatus, setFilterStatus] = useState<EmployeeStatus | "all">("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+
+  // Filter employees by status
+  const filteredEmployees = useMemo(() => {
+    if (filterStatus === "all") return employees;
+    return employees.filter((e) => e.status === filterStatus);
+  }, [employees, filterStatus]);
 
   const handleAddEmployee = () => {
     setSelectedEmployee(null);
@@ -86,12 +93,14 @@ export default function StaffPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <StaffStatsCards
+      {/* Filters */}
+      <StaffFilters
+        selectedStatus={filterStatus}
+        onStatusChange={setFilterStatus}
         totalEmployees={employees.length}
-        activeEmployees={activeEmployees}
-        onLeaveEmployees={onLeaveEmployees}
-        inactiveEmployees={inactiveEmployees}
+        activeCount={activeEmployees}
+        onLeaveCount={onLeaveEmployees}
+        inactiveCount={inactiveEmployees}
       />
 
       {/* Employee Table */}
@@ -100,11 +109,15 @@ export default function StaffPage() {
           <div className="mb-4">
             <h2 className="text-lg font-semibold">All Employees</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              A comprehensive list of all employees with their roles and specializations
+              {filterStatus === "all"
+                ? "A comprehensive list of all employees with their roles and specializations"
+                : `Showing ${filteredEmployees.length} ${filterStatus} employee${
+                    filteredEmployees.length !== 1 ? "s" : ""
+                  }`}
             </p>
           </div>
           <StaffTable
-            employees={employees}
+            employees={filteredEmployees}
             specializations={specializations}
             onEdit={handleEditEmployee}
             onDelete={handleDeleteEmployee}
