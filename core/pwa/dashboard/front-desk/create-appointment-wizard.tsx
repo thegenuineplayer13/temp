@@ -1,103 +1,131 @@
+import { useMemo } from "react";
 import { ResponsiveDialog } from "@/features/core/components/shared/responsive-dialog";
 import { useFrontDeskStore } from "@/features/core/store/store.front-desk";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { CreateAppointmentStepClient } from "./create-appointment-step-client";
 import { CreateAppointmentStepServices } from "./create-appointment-step-services";
-import { CreateAppointmentStepStaff } from "./create-appointment-step-staff";
-import { CreateAppointmentStepDateTime } from "./create-appointment-step-datetime";
+import { CreateAppointmentStepDate } from "./create-appointment-step-date";
+import { CreateAppointmentStepAssignmentMode } from "./create-appointment-step-assignment-mode";
+import { CreateAppointmentStepStaffTime } from "./create-appointment-step-staff-time";
+import { CreateAppointmentStepNotes } from "./create-appointment-step-notes";
 import { CreateAppointmentStepReview } from "./create-appointment-step-review";
 
+type WizardStep = {
+   id: string;
+   title: string;
+   component: React.ReactNode;
+   canProceed: () => boolean;
+};
+
 export function CreateAppointmentWizard() {
-   const { isBookingWizardOpen, bookingStep, bookingData, closeBookingWizard, nextBookingStep, prevBookingStep, resetBookingWizard } =
+   const { isBookingWizardOpen, bookingStep, bookingData, closeBookingWizard, setBookingStep, resetBookingWizard } =
       useFrontDeskStore();
+
+   // Build dynamic step list
+   const steps = useMemo((): WizardStep[] => {
+      const allSteps: WizardStep[] = [];
+
+      // Step 1: Client selection (skip if already selected)
+      if (!bookingData.clientId) {
+         allSteps.push({
+            id: "client",
+            title: "Select Client",
+            component: <CreateAppointmentStepClient />,
+            canProceed: () => !!bookingData.clientId,
+         });
+      }
+
+      // Step 2: Service selection
+      allSteps.push({
+         id: "services",
+         title: "Select Services",
+         component: <CreateAppointmentStepServices />,
+         canProceed: () => bookingData.serviceCart.length > 0,
+      });
+
+      // Step 3: Date selection
+      allSteps.push({
+         id: "date",
+         title: "Choose Date",
+         component: <CreateAppointmentStepDate />,
+         canProceed: () => !!bookingData.selectedDate,
+      });
+
+      // Step 4: Assignment mode (only if multiple services)
+      if (bookingData.serviceCart.length > 1) {
+         allSteps.push({
+            id: "assignment-mode",
+            title: "Assignment Mode",
+            component: <CreateAppointmentStepAssignmentMode />,
+            canProceed: () => bookingData.assignmentMode !== "auto",
+         });
+      }
+
+      // Step 5: Staff & Time selection
+      allSteps.push({
+         id: "staff-time",
+         title: "Select Staff & Time",
+         component: <CreateAppointmentStepStaffTime />,
+         canProceed: () => {
+            if (bookingData.assignmentMode === "single") {
+               return !!bookingData.singleStaffId && !!bookingData.startTime;
+            } else if (bookingData.assignmentMode === "multiple") {
+               return bookingData.serviceAssignments.every((a) => !!a.staffId && !!a.startTime);
+            }
+            return false;
+         },
+      });
+
+      // Step 6: Notes
+      allSteps.push({
+         id: "notes",
+         title: "Add Notes",
+         component: <CreateAppointmentStepNotes />,
+         canProceed: () => true, // Notes are optional
+      });
+
+      // Step 7: Review
+      allSteps.push({
+         id: "review",
+         title: "Review & Confirm",
+         component: <CreateAppointmentStepReview />,
+         canProceed: () => true,
+      });
+
+      return allSteps;
+   }, [bookingData.clientId, bookingData.serviceCart.length, bookingData.assignmentMode, bookingData.singleStaffId, bookingData.startTime, bookingData.serviceAssignments]);
+
+   const currentStepIndex = bookingStep - 1;
+   const currentStep = steps[currentStepIndex];
+   const totalSteps = steps.length;
+   const isLastStep = currentStepIndex === totalSteps - 1;
 
    const handleClose = () => {
       resetBookingWizard();
    };
 
-   const canProceedToNextStep = (): boolean => {
-      switch (bookingStep) {
-         case 1:
-            // Client selection: must have a client selected
-            return !!bookingData.clientId;
-         case 2:
-            // Service selection: must have at least one service
-            return bookingData.serviceCart.length > 0;
-         case 3:
-            // Staff assignment: depends on mode
-            if (bookingData.assignmentMode === "single") {
-               return !!bookingData.singleStaffId;
-            } else if (bookingData.assignmentMode === "multiple") {
-               // All services must have staff assigned
-               return bookingData.serviceAssignments.every((assignment) => !!assignment.staffId);
-            }
-            return true; // auto mode always can proceed
-         case 4:
-            // Date/Time selection: must have date and time
-            if (bookingData.assignmentMode === "multiple") {
-               // For multiple staff, each service must have a start time
-               return (
-                  !!bookingData.selectedDate &&
-                  bookingData.serviceAssignments.every((assignment) => !!assignment.startTime)
-               );
-            }
-            // For single staff or auto, just need date and start time
-            return !!bookingData.selectedDate && !!bookingData.startTime;
-         case 5:
-            // Review step: always ready
-            return true;
-         default:
-            return false;
-      }
-   };
-
    const handleNext = () => {
-      if (canProceedToNextStep()) {
-         nextBookingStep();
+      if (currentStep?.canProceed()) {
+         setBookingStep(Math.min(totalSteps, bookingStep + 1));
       }
    };
 
    const handleBack = () => {
-      prevBookingStep();
-   };
-
-   const stepTitles = [
-      "Select Client",
-      "Select Services",
-      "Assign Staff",
-      "Choose Date & Time",
-      "Review & Confirm",
-   ];
-
-   const renderStep = () => {
-      switch (bookingStep) {
-         case 1:
-            return <CreateAppointmentStepClient />;
-         case 2:
-            return <CreateAppointmentStepServices />;
-         case 3:
-            return <CreateAppointmentStepStaff />;
-         case 4:
-            return <CreateAppointmentStepDateTime />;
-         case 5:
-            return <CreateAppointmentStepReview />;
-         default:
-            return null;
-      }
+      setBookingStep(Math.max(1, bookingStep - 1));
    };
 
    const footer = (
       <div className="flex flex-col gap-3">
          {/* Progress indicator */}
          <div className="flex items-center justify-center gap-2">
-            {[1, 2, 3, 4, 5].map((step) => (
+            {steps.map((_, index) => (
                <div
-                  key={step}
+                  key={index}
                   className={`h-2 rounded-full transition-all ${
-                     step === bookingStep
+                     index + 1 === bookingStep
                         ? "w-8 bg-primary"
-                        : step < bookingStep
+                        : index + 1 < bookingStep
                           ? "w-2 bg-primary/50"
                           : "w-2 bg-muted"
                   }`}
@@ -114,8 +142,8 @@ export function CreateAppointmentWizard() {
                </Button>
             )}
 
-            {bookingStep < 5 ? (
-               <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="flex-1">
+            {!isLastStep ? (
+               <Button onClick={handleNext} disabled={!currentStep?.canProceed()} className="flex-1">
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
                </Button>
@@ -135,12 +163,12 @@ export function CreateAppointmentWizard() {
       <ResponsiveDialog
          open={isBookingWizardOpen}
          onOpenChange={(open) => !open && handleClose()}
-         title={stepTitles[bookingStep - 1]}
-         description={`Step ${bookingStep} of 5`}
+         title={currentStep?.title || ""}
+         description={`Step ${bookingStep} of ${totalSteps}`}
          footer={footer}
-         className="max-w-2xl"
+         className="max-w-3xl"
       >
-         <div className="py-4">{renderStep()}</div>
+         <div className="min-h-[400px]">{currentStep?.component}</div>
       </ResponsiveDialog>
    );
 }
