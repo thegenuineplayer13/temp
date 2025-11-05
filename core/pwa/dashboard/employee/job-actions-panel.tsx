@@ -1,21 +1,18 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Flag, TrendingUp, Camera, CheckCircle2, Plus, X } from "lucide-react";
+import { FileText, Camera, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddNoteDialog } from "./add-note-dialog";
 import { PhotoUpload } from "./photo-upload";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type { NoteType } from "@/features/core/types/types.dashboard-employee";
 
 export function JobActionsPanel() {
    const isMobile = useIsMobile();
    const [noteDialogOpen, setNoteDialogOpen] = useState(false);
-   const [noteType, setNoteType] = useState<NoteType>("job");
    const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
    const [fabOpen, setFabOpen] = useState(false);
 
-   const openNoteDialog = (type: NoteType) => {
-      setNoteType(type);
+   const openNoteDialog = () => {
       setNoteDialogOpen(true);
       setFabOpen(false);
    };
@@ -31,14 +28,7 @@ export function JobActionsPanel() {
          label: "Add Note",
          color: "text-primary",
          bgColor: "bg-primary/10 hover:bg-primary/20",
-         onClick: () => openNoteDialog("job"),
-      },
-      {
-         icon: CheckCircle2,
-         label: "Completion",
-         color: "text-primary",
-         bgColor: "bg-primary/10 hover:bg-primary/20",
-         onClick: () => openNoteDialog("completion"),
+         onClick: openNoteDialog,
       },
       {
          icon: Camera,
@@ -46,20 +36,6 @@ export function JobActionsPanel() {
          color: "text-accent",
          bgColor: "bg-accent/10 hover:bg-accent/20",
          onClick: openPhotoUpload,
-      },
-      {
-         icon: Flag,
-         label: "Flag Issue",
-         color: "text-red-600 dark:text-red-500",
-         bgColor: "bg-red-500/10 hover:bg-red-500/20",
-         onClick: () => openNoteDialog("issue"),
-      },
-      {
-         icon: TrendingUp,
-         label: "Upsell",
-         color: "text-green-600 dark:text-green-500",
-         bgColor: "bg-green-500/10 hover:bg-green-500/20",
-         onClick: () => openNoteDialog("upsell"),
       },
    ];
 
@@ -118,7 +94,7 @@ export function JobActionsPanel() {
                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" onClick={() => setFabOpen(false)} />
             )}
 
-            <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} noteType={noteType} />
+            <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
 
             <PhotoUpload open={photoUploadOpen} onOpenChange={setPhotoUploadOpen} />
          </>
@@ -146,7 +122,7 @@ export function JobActionsPanel() {
             </CardContent>
          </Card>
 
-         <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} noteType={noteType} />
+         <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
 
          <PhotoUpload open={photoUploadOpen} onOpenChange={setPhotoUploadOpen} />
       </>
