@@ -1,0 +1,107 @@
+import type { Employee } from "@/features/core/types/types.staff";
+
+export const mockEmployees: Employee[] = [
+  {
+    id: "1",
+    name: "Maria Garcia",
+    email: "maria.garcia@example.com",
+    phone: "(555) 123-4567",
+    role: "owner",
+    status: "active",
+    specializationIds: ["1", "3"], // Hair Styling, Hair Coloring
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
+    hireDate: "2020-01-15",
+    salary: 75000,
+    notes: "Owner and master stylist",
+  },
+  {
+    id: "2",
+    name: "John Smith",
+    email: "john.smith@example.com",
+    phone: "(555) 234-5678",
+    role: "employee",
+    status: "active",
+    specializationIds: ["2"], // Beard Grooming
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+    hireDate: "2021-03-20",
+    salary: 45000,
+    notes: "Specialized in men's grooming",
+  },
+  {
+    id: "3",
+    name: "Sarah Johnson",
+    email: "sarah.johnson@example.com",
+    phone: "(555) 345-6789",
+    role: "staff",
+    status: "active",
+    specializationIds: ["1", "4"], // Hair Styling, Spa Services
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    hireDate: "2021-06-10",
+    salary: 48000,
+    notes: "Front desk and junior stylist",
+  },
+  {
+    id: "4",
+    name: "Michael Brown",
+    email: "michael.brown@example.com",
+    phone: "(555) 456-7890",
+    role: "employee",
+    status: "active",
+    specializationIds: ["3"], // Hair Coloring
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
+    hireDate: "2022-01-05",
+    salary: 42000,
+    notes: "Color specialist",
+  },
+  {
+    id: "5",
+    name: "Emily Davis",
+    email: "emily.davis@example.com",
+    phone: "(555) 567-8901",
+    role: "employee",
+    status: "active",
+    specializationIds: ["5"], // Nail Care
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
+    hireDate: "2022-04-12",
+    salary: 40000,
+    notes: "Nail technician",
+  },
+  {
+    id: "6",
+    name: "David Wilson",
+    email: "david.wilson@example.com",
+    phone: "(555) 678-9012",
+    role: "admin",
+    status: "active",
+    specializationIds: ["1", "2"], // Hair Styling, Beard Grooming
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
+    hireDate: "2020-08-18",
+    salary: 55000,
+    notes: "Manager and senior stylist",
+  },
+  {
+    id: "7",
+    name: "Lisa Anderson",
+    email: "lisa.anderson@example.com",
+    phone: "(555) 789-0123",
+    role: "employee",
+    status: "on-leave",
+    specializationIds: ["4"], // Spa Services
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa",
+    hireDate: "2021-11-22",
+    salary: 43000,
+    notes: "On maternity leave",
+  },
+  {
+    id: "8",
+    name: "Robert Taylor",
+    email: "robert.taylor@example.com",
+    phone: "(555) 890-1234",
+    role: "employee",
+    status: "inactive",
+    specializationIds: ["2"], // Beard Grooming
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Robert",
+    hireDate: "2019-05-30",
+    notes: "Resigned - moved to another city",
+  },
+];
