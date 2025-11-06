@@ -21,7 +21,7 @@ import type { Appointment } from "@/features/core/types/types.dashboard-front-de
 import type { WorkingHours, TimeOffEntry } from "@/features/core/types/types.calendar";
 import type { ServiceRelationship } from "@/features/core/types/types.services";
 import { formatDate } from "../notification-utils";
-import { ConflictResolutionPanel } from "../conflict-resolution-panel";
+import { MobileConflictResolution } from "../mobile-conflict-resolution";
 import { areAllConflictsResolved } from "@/features/core/lib/conflict-resolution-utils";
 
 interface RequestDetailProps {
@@ -334,7 +334,7 @@ export function RequestDetail({
 				</Card>
 			)}
 
-			{/* Conflict Resolution Panel */}
+			{/* Conflict Resolution (Mobile-First) */}
 			{request.conflicts &&
 				allEmployees &&
 				appointments &&
@@ -342,7 +342,7 @@ export function RequestDetail({
 				timeOffEntries &&
 				serviceRelationships &&
 				onUpdateConflicts && (
-					<ConflictResolutionPanel
+					<MobileConflictResolution
 						request={request}
 						allEmployees={allEmployees}
 						appointments={appointments}
@@ -350,7 +350,9 @@ export function RequestDetail({
 						timeOffEntries={timeOffEntries}
 						serviceRelationships={serviceRelationships}
 						onUpdateConflicts={onUpdateConflicts}
-						onSendOffer={onSendOffer}
+						onSendBroadcast={(staffIds, deadlineHours) => {
+							console.log("Broadcast sent to:", staffIds, "Deadline:", deadlineHours);
+						}}
 					/>
 				)}
 
