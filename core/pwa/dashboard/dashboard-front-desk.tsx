@@ -93,8 +93,8 @@ export default function FrontDeskDashboard() {
    }, []);
 
    const handleQuickWalkIn = useCallback(
-      (name: string, service?: string) => {
-         console.log("Adding quick walk-in:", { name, service });
+      (name: string, serviceIds?: string[]) => {
+         console.log("Adding quick walk-in:", { name, serviceIds });
          if (isMobile) {
             setMobileView("queue");
          }

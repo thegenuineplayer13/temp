@@ -115,23 +115,24 @@ export function CreateAppointmentWizard() {
       setBookingStep(Math.max(1, bookingStep - 1));
    };
 
-   // Progress dots for description
-   const progressDots = (
-      <div className="flex items-center gap-1.5 mt-1">
-         {steps.map((_, index) => (
-            <div
-               key={index}
-               className={`h-1.5 rounded-full transition-all ${
-                  index + 1 === bookingStep
-                     ? "w-6 bg-primary"
-                     : index + 1 < bookingStep
-                       ? "w-1.5 bg-primary/60"
-                       : "w-1.5 bg-muted-foreground/30"
-               }`}
-            />
-         ))}
-      </div>
-   );
+   const getStepDescription = () => {
+      if (currentStep?.id === "client") {
+         return "Search and select the client for this appointment";
+      } else if (currentStep?.id === "services") {
+         return "Choose one or more services for this appointment";
+      } else if (currentStep?.id === "date") {
+         return "Pick a date when the client is available";
+      } else if (currentStep?.id === "assignment-mode") {
+         return "Choose how to assign staff for multiple services";
+      } else if (currentStep?.id === "staff-time") {
+         return "Select staff members and time slots";
+      } else if (currentStep?.id === "notes") {
+         return "Add any special notes or requests (optional)";
+      } else if (currentStep?.id === "review") {
+         return "Review all details before confirming";
+      }
+      return "";
+   };
 
    const footer = !isLastStep ? (
       <div className="flex gap-3 w-full">
@@ -182,12 +183,7 @@ export function CreateAppointmentWizard() {
          open={isBookingWizardOpen}
          onOpenChange={(open) => !open && handleClose()}
          title={currentStep?.title || ""}
-         description={
-            <div className="flex items-center gap-3">
-               <span className="text-sm text-muted-foreground">Step {bookingStep} of {totalSteps}</span>
-               {progressDots}
-            </div>
-         }
+         description={getStepDescription()}
          footer={footer}
          className="max-w-3xl"
       >

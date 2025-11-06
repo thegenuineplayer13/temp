@@ -70,51 +70,11 @@ export function CreateAppointmentStepClient() {
    const selectedClient = customers.find((c) => c.id === bookingData.clientId);
 
    return (
-      <div className="space-y-4 flex flex-col h-full">
-         <div className="text-center space-y-2">
+      <div className="space-y-4">
+         <div className="text-center">
             <h3 className="font-semibold text-lg">Who is this appointment for?</h3>
-            <p className="text-sm text-muted-foreground">Search for an existing client or register a new one</p>
+            <p className="text-sm text-muted-foreground mt-1">Search for an existing client below</p>
          </div>
-
-         {/* Selected client - always on top if selected */}
-         {selectedClient && (
-            <Card className="p-4 bg-primary/5 border-primary/20">
-               <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                     <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                           <User className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                           <div className="flex items-center gap-2">
-                              <span className="font-semibold">{selectedClient.name}</span>
-                              {selectedClient.totalVisits === 0 && (
-                                 <Badge variant="secondary" className="text-xs">
-                                    New Client
-                                 </Badge>
-                              )}
-                           </div>
-                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-                              <Phone className="h-3 w-3" />
-                              <span>{selectedClient.phone}</span>
-                              <span className="text-[10px]">•</span>
-                              <span>{selectedClient.totalVisits} visits</span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <button
-                     onClick={() => {
-                        updateBookingData({ clientId: null, clientName: null, clientPhone: null });
-                        setSearchQuery("");
-                     }}
-                     className="text-sm text-primary hover:underline flex-shrink-0"
-                  >
-                     Change
-                  </button>
-               </div>
-            </Card>
-         )}
 
          {/* Search bar - always visible */}
          <div ref={searchRef} className="relative">
@@ -131,11 +91,50 @@ export function CreateAppointmentStepClient() {
             />
          </div>
 
-         {/* Scrollable results list */}
-         {showSuggestions && suggestions.length > 0 && (
-            <div className="flex-1 min-h-0 border border-border rounded-lg overflow-hidden">
-               <div className="overflow-y-auto h-full max-h-[400px]">
-                  {suggestions.map((customer, index) => (
+         {/* Fixed height scrollable results area */}
+         <div className="border border-border rounded-lg h-[400px] overflow-hidden">
+            {/* Selected client - shown at top when selected */}
+            {selectedClient && (
+               <div className="p-4 bg-primary/5 border-b border-primary/20">
+                  <div className="flex items-start justify-between">
+                     <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                           <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <div className="flex items-center gap-2">
+                              <span className="font-semibold">{selectedClient.name}</span>
+                              {selectedClient.totalVisits === 0 && (
+                                 <Badge variant="secondary" className="text-xs">
+                                    New
+                                 </Badge>
+                              )}
+                           </div>
+                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                              <Phone className="h-3 w-3" />
+                              <span>{selectedClient.phone}</span>
+                              <span className="text-[10px]">•</span>
+                              <span>{selectedClient.totalVisits} visits</span>
+                           </div>
+                        </div>
+                     </div>
+                     <button
+                        onClick={() => {
+                           updateBookingData({ clientId: null, clientName: null, clientPhone: null });
+                           setSearchQuery("");
+                        }}
+                        className="text-sm text-primary hover:underline flex-shrink-0 ml-2"
+                     >
+                        Change
+                     </button>
+                  </div>
+               </div>
+            )}
+
+            {/* Scrollable list area */}
+            <div className="overflow-y-auto h-full">
+               {showSuggestions && suggestions.length > 0 ? (
+                  suggestions.map((customer, index) => (
                      <button
                         key={customer.id}
                         onClick={() => handleSelectClient(customer)}
@@ -163,16 +162,26 @@ export function CreateAppointmentStepClient() {
                            </Badge>
                         )}
                      </button>
-                  ))}
-               </div>
+                  ))
+               ) : searchQuery.trim() ? (
+                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                     <User className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                     <p className="font-medium">No clients found</p>
+                     <p className="text-sm text-muted-foreground mt-1">
+                        Try a different search term or register a new customer
+                     </p>
+                  </div>
+               ) : (
+                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                     <Search className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                     <p className="font-medium">Start searching</p>
+                     <p className="text-sm text-muted-foreground mt-1">
+                        Type a name, phone number, or email to find a client
+                     </p>
+                  </div>
+               )}
             </div>
-         )}
-
-         {showSuggestions && suggestions.length === 0 && searchQuery && (
-            <div className="p-8 text-center border border-border rounded-lg">
-               <p className="text-sm text-muted-foreground">No clients found. Try a different search term.</p>
-            </div>
-         )}
+         </div>
       </div>
    );
 }
