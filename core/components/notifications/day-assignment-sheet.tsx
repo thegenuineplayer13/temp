@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { ResponsiveModal, ResponsiveModalBody, ResponsiveModalFooter } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -123,80 +123,74 @@ export function DayAssignmentSheet({
 	};
 
 	return (
-		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="bottom" className="h-[90vh]">
-				<SheetHeader>
-					<SheetTitle className="text-sm">
-						{formatDate(day.date)}
-					</SheetTitle>
-					<p className="text-xs text-muted-foreground">
-						{day.totalAppointments} appointments • {totalHours.toFixed(1)} hours
-					</p>
-				</SheetHeader>
-
-				<div className="mt-6 space-y-4 pb-24 overflow-y-auto max-h-[calc(90vh-180px)]">
-					{/* Available Staff */}
-					{availableStaff.length > 0 && (
-						<div className="space-y-3">
-							<div className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<h4 className="font-semibold text-sm">Available Now</h4>
-							</div>
-
-							<RadioGroup value={selectedStaffId} onValueChange={setSelectedStaffId}>
-								<div className="space-y-2">
-									{availableStaff.map((staff) => (
-										<StaffOption key={staff.id} staff={staff} />
-									))}
-								</div>
-							</RadioGroup>
+		<ResponsiveModal
+			open={open}
+			onOpenChange={onOpenChange}
+			title={formatDate(day.date)}
+			description={`${day.totalAppointments} appointments • ${totalHours.toFixed(1)} hours`}
+		>
+			<ResponsiveModalBody>
+				{/* Available Staff */}
+				{availableStaff.length > 0 && (
+					<div className="space-y-3 mb-6">
+						<div className="flex items-center gap-2">
+							<Check className="h-4 w-4 text-green-600" />
+							<h4 className="font-semibold text-sm">Available Now</h4>
 						</div>
-					)}
 
-					{/* On Leave Staff */}
-					{needsApprovalStaff.length > 0 && (
-						<div className="space-y-3">
-							<div className="flex items-center gap-2">
-								<Clock className="h-4 w-4 text-yellow-600" />
-								<h4 className="font-semibold text-sm">On Leave (Can Offer)</h4>
-							</div>
-
+						<RadioGroup value={selectedStaffId} onValueChange={setSelectedStaffId}>
 							<div className="space-y-2">
-								{needsApprovalStaff.map((staff) => (
-									<StaffOfferOption key={staff.id} staff={staff} />
+								{availableStaff.map((staff) => (
+									<StaffOption key={staff.id} staff={staff} />
 								))}
 							</div>
+						</RadioGroup>
+					</div>
+				)}
+
+				{/* On Leave Staff */}
+				{needsApprovalStaff.length > 0 && (
+					<div className="space-y-3 mb-6">
+						<div className="flex items-center gap-2">
+							<Clock className="h-4 w-4 text-yellow-600" />
+							<h4 className="font-semibold text-sm">On Leave (Can Offer)</h4>
 						</div>
-					)}
 
-					{/* No options */}
-					{availableStaff.length === 0 && needsApprovalStaff.length === 0 && (
-						<Card className="p-4 bg-muted/50 border-dashed">
-							<div className="flex items-start gap-3">
-								<AlertTriangle className="h-5 w-5 text-muted-foreground mt-0.5" />
-								<div>
-									<p className="text-sm font-medium">No qualified staff available</p>
-									<p className="text-xs text-muted-foreground mt-1">
-										Try broadcasting to the team or splitting by service type.
-									</p>
-								</div>
+						<div className="space-y-2">
+							{needsApprovalStaff.map((staff) => (
+								<StaffOfferOption key={staff.id} staff={staff} />
+							))}
+						</div>
+					</div>
+				)}
+
+				{/* No options */}
+				{availableStaff.length === 0 && needsApprovalStaff.length === 0 && (
+					<Card className="p-4 bg-muted/50 border-dashed">
+						<div className="flex items-start gap-3">
+							<AlertTriangle className="h-5 w-5 text-muted-foreground mt-0.5" />
+							<div>
+								<p className="text-sm font-medium">No qualified staff available</p>
+								<p className="text-xs text-muted-foreground mt-1">
+									Try broadcasting to the team or splitting by service type.
+								</p>
 							</div>
-						</Card>
-					)}
-				</div>
+						</div>
+					</Card>
+				)}
+			</ResponsiveModalBody>
 
-				<SheetFooter className="absolute bottom-0 left-0 right-0 p-6 bg-background border-t">
-					<Button
-						onClick={handleConfirm}
-						disabled={!selectedStaffId}
-						className="w-full"
-						size="lg"
-					>
-						Confirm Assignment
-					</Button>
-				</SheetFooter>
-			</SheetContent>
-		</Sheet>
+			<ResponsiveModalFooter>
+				<Button
+					onClick={handleConfirm}
+					disabled={!selectedStaffId}
+					className="w-full"
+					size="lg"
+				>
+					Confirm Assignment
+				</Button>
+			</ResponsiveModalFooter>
+		</ResponsiveModal>
 	);
 }
 

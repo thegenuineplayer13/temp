@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { ResponsiveModal, ResponsiveModalBody, ResponsiveModalFooter } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,37 +59,36 @@ export function BroadcastSheet({
 
 	if (showSuccess) {
 		return (
-			<Sheet open={open} onOpenChange={onOpenChange}>
-				<SheetContent side="bottom" className="h-auto">
-					<div className="py-8 text-center space-y-4">
-						<div className="flex justify-center">
-							<div className="rounded-full bg-green-500/10 p-3">
-								<Check className="h-8 w-8 text-green-600" />
-							</div>
-						</div>
-						<div>
-							<h3 className="font-semibold text-lg">Broadcast Sent!</h3>
-							<p className="text-sm text-muted-foreground mt-1">
-								Notified {eligibleStaff.total} staff members
-							</p>
+			<ResponsiveModal open={open} onOpenChange={onOpenChange} showHeader={false}>
+				<div className="py-8 px-6 text-center space-y-4">
+					<div className="flex justify-center">
+						<div className="rounded-full bg-green-500/10 p-3">
+							<Check className="h-8 w-8 text-green-600" />
 						</div>
 					</div>
-				</SheetContent>
-			</Sheet>
+					<div>
+						<h3 className="font-semibold text-lg">Broadcast Sent!</h3>
+						<p className="text-sm text-muted-foreground mt-1">
+							Notified {eligibleStaff.total} staff members
+						</p>
+					</div>
+				</div>
+			</ResponsiveModal>
 		);
 	}
 
 	return (
-		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="bottom" className="h-[85vh]">
-				<SheetHeader>
-					<SheetTitle className="flex items-center gap-2">
-						<Radio className="h-5 w-5" />
-						Broadcast to Team
-					</SheetTitle>
-				</SheetHeader>
-
-				<div className="mt-6 space-y-6 pb-24 overflow-y-auto max-h-[calc(85vh-180px)]">
+		<ResponsiveModal
+			open={open}
+			onOpenChange={onOpenChange}
+			title={
+				<div className="flex items-center gap-2">
+					<Radio className="h-5 w-5" />
+					Broadcast to Team
+				</div>
+			}
+		>
+			<ResponsiveModalBody className="space-y-6">
 					{/* Overview */}
 					<Card className="p-4 bg-primary/5 border-primary/20">
 						<p className="text-sm">
@@ -216,20 +215,19 @@ export function BroadcastSheet({
 							</div>
 						</div>
 					</Card>
-				</div>
+			</ResponsiveModalBody>
 
-				<SheetFooter className="absolute bottom-0 left-0 right-0 p-6 bg-background border-t">
-					<Button
-						onClick={handleSend}
-						disabled={eligibleStaff.total === 0}
-						className="w-full"
-						size="lg"
-					>
-						<Radio className="h-4 w-4 mr-2" />
-						Send Broadcast
-					</Button>
-				</SheetFooter>
-			</SheetContent>
-		</Sheet>
+			<ResponsiveModalFooter>
+				<Button
+					onClick={handleSend}
+					disabled={eligibleStaff.total === 0}
+					className="w-full"
+					size="lg"
+				>
+					<Radio className="h-4 w-4 mr-2" />
+					Send Broadcast
+				</Button>
+			</ResponsiveModalFooter>
+		</ResponsiveModal>
 	);
 }
