@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ResponsiveModal, ResponsiveModalBody } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,20 +57,22 @@ export function ManualAssignmentSheet({
 
 	return (
 		<>
-			<Sheet open={open} onOpenChange={onOpenChange}>
-				<SheetContent side="bottom" className="h-[85vh]">
-					<SheetHeader>
-						<SheetTitle className="flex items-center gap-2">
-							<Calendar className="h-5 w-5" />
-							Manual Assignment
-						</SheetTitle>
-					</SheetHeader>
+			<ResponsiveModal
+				open={open}
+				onOpenChange={onOpenChange}
+				title={
+					<div className="flex items-center gap-2">
+						<Calendar className="h-5 w-5" />
+						Manual Assignment
+					</div>
+				}
+			>
+				<ResponsiveModalBody>
+					<p className="text-sm text-muted-foreground mb-4">
+						Tap each day to assign staff
+					</p>
 
-					<div className="mt-6 space-y-3 pb-6">
-						<p className="text-sm text-muted-foreground">
-							Tap each day to assign staff
-						</p>
-
+					<div className="space-y-3">
 						{request.conflicts.days.map((day) => {
 							const assigned = day.isResolved;
 							const assignedStaff = day.assignments.fullDay?.staffName;
@@ -117,10 +119,10 @@ export function ManualAssignmentSheet({
 							);
 						})}
 					</div>
-				</SheetContent>
-			</Sheet>
+				</ResponsiveModalBody>
+			</ResponsiveModal>
 
-			{/* Day Assignment Sub-Sheet */}
+			{/* Day Assignment Sub-Modal */}
 			{selectedDay && (
 				<DayAssignmentSheet
 					open={!!selectedDay}
