@@ -62,14 +62,14 @@ export function ResponsiveDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`max-h-[90vh] flex flex-col p-0 gap-0 ${className || ""}`}>
-        <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b bg-background sticky top-0 z-10">
+        <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b bg-background">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <div className="overflow-y-auto px-6 py-4 flex-1">
+        <div className="overflow-y-auto px-6 py-4 flex-1 min-h-0">
           {children}
         </div>
-        {footer && <DialogFooter className="px-6 py-4 flex-shrink-0 border-t bg-background sticky bottom-0">{footer}</DialogFooter>}
+        {footer && <DialogFooter className="px-6 py-4 flex-shrink-0 border-t bg-background">{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );
