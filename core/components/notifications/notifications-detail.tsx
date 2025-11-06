@@ -18,6 +18,11 @@ import { StaffAlertDetail } from "./details/staff-alert-detail";
 import { OperationsAlertDetail } from "./details/operations-alert-detail";
 import { SystemAlertDetail } from "./details/system-alert-detail";
 import { RequestDetail } from "./details/request-detail";
+import { useEmployees } from "@/features/core/hooks/queries/queries.staff";
+import { useAppointments } from "@/features/core/hooks/queries/queries.dashboard-front-desk";
+import { useWorkingHours, useTimeOffEntries } from "@/features/core/hooks/queries/queries.calendar";
+import { useServiceRelationships } from "@/features/core/hooks/queries/queries.services";
+import { useUpdateRequestConflicts } from "@/features/core/hooks/queries/queries.notifications";
 
 interface NotificationsDetailProps {
 	notification: Notification | null;
@@ -34,6 +39,14 @@ export function NotificationsDetail({
 	onApprove,
 	onReject,
 }: NotificationsDetailProps) {
+	// Fetch data for conflict resolution
+	const { data: employees } = useEmployees();
+	const { data: appointments } = useAppointments();
+	const { data: workingHours } = useWorkingHours();
+	const { data: timeOffEntries } = useTimeOffEntries();
+	const { data: serviceRelationships } = useServiceRelationships();
+	const updateConflictsMutation = useUpdateRequestConflicts();
+
 	if (!notification) {
 		return (
 			<div className="h-full flex items-center justify-center text-center p-8">
@@ -54,6 +67,15 @@ export function NotificationsDetail({
 	const isCompleted = isAlert
 		? notification.status === "resolved"
 		: notification.status === "approved" || notification.status === "rejected";
+
+	const handleUpdateConflicts = (updatedRequest: Request) => {
+		updateConflictsMutation.mutate(updatedRequest);
+	};
+
+	const handleSendOffer = (dayDate: string, staffId: string) => {
+		console.log("Send offer:", { dayDate, staffId });
+		// In production, this would create and send a work offer
+	};
 
 	return (
 		<ScrollArea className="h-full">
@@ -183,7 +205,17 @@ export function NotificationsDetail({
 				<Separator />
 
 				{/* Type-specific content */}
-				{renderTypeSpecificDetail(notification, { onApprove, onReject })}
+				{renderTypeSpecificDetail(notification, {
+					onApprove,
+					onReject,
+					employees,
+					appointments,
+					workingHours,
+					timeOffEntries,
+					serviceRelationships,
+					onUpdateConflicts: handleUpdateConflicts,
+					onSendOffer: handleSendOffer,
+				})}
 			</div>
 		</ScrollArea>
 	);
@@ -192,10 +224,33 @@ export function NotificationsDetail({
 // Route to type-specific detail components
 function renderTypeSpecificDetail(
 	notification: Notification,
-	actions: { onApprove?: (id: string) => void; onReject?: (id: string) => void },
+	actions: {
+		onApprove?: (id: string) => void;
+		onReject?: (id: string) => void;
+		employees?: any[];
+		appointments?: any[];
+		workingHours?: any[];
+		timeOffEntries?: any[];
+		serviceRelationships?: any;
+		onUpdateConflicts?: (req: Request) => void;
+		onSendOffer?: (dayDate: string, staffId: string) => void;
+	},
 ) {
 	if (notification.category === "request") {
-		return <RequestDetail request={notification as Request} {...actions} />;
+		return (
+			<RequestDetail
+				request={notification as Request}
+				onApprove={actions.onApprove}
+				onReject={actions.onReject}
+				allEmployees={actions.employees}
+				appointments={actions.appointments}
+				workingHours={actions.workingHours}
+				timeOffEntries={actions.timeOffEntries}
+				serviceRelationships={actions.serviceRelationships}
+				onUpdateConflicts={actions.onUpdateConflicts}
+				onSendOffer={actions.onSendOffer}
+			/>
+		);
 	}
 
 	const alert = notification as Alert;
