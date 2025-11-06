@@ -135,8 +135,8 @@ export function CreateAppointmentStepClient() {
                   </div>
 
                   {showSuggestions && suggestions.length > 0 && (
-                     <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl max-h-96 overflow-y-auto z-50">
-                        {suggestions.map((customer, index) => (
+                     <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50">
+                        {suggestions.slice(0, 6).map((customer, index) => (
                            <button
                               key={customer.id}
                               onClick={() => handleSelectClient(customer)}
@@ -149,22 +149,27 @@ export function CreateAppointmentStepClient() {
                               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                                  <User className="h-5 w-5 text-primary" />
                               </div>
-                              <div className="flex-1">
-                                 <p className="font-semibold text-sm">{customer.name}</p>
+                              <div className="flex-1 min-w-0">
+                                 <p className="font-semibold text-sm truncate">{customer.name}</p>
                                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                                     <Phone className="h-3 w-3" />
-                                    <span>{customer.phone}</span>
+                                    <span className="truncate">{customer.phone}</span>
                                     <span className="text-[10px]">•</span>
-                                    <span>{customer.totalVisits} visits</span>
+                                    <span className="whitespace-nowrap">{customer.totalVisits} visits</span>
                                  </div>
                               </div>
                               {customer.totalVisits === 0 && (
-                                 <Badge variant="secondary" className="text-xs">
+                                 <Badge variant="secondary" className="text-xs flex-shrink-0">
                                     New
                                  </Badge>
                               )}
                            </button>
                         ))}
+                        {suggestions.length > 6 && (
+                           <div className="px-4 py-2 text-xs text-center text-muted-foreground border-t border-border bg-muted/30">
+                              +{suggestions.length - 6} more results. Keep typing to narrow down.
+                           </div>
+                        )}
                      </div>
                   )}
 

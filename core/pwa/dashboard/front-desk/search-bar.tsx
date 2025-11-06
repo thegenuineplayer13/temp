@@ -127,19 +127,19 @@ export function SearchBar({ onSelectCustomer, onRegisterClick, onBookAppointment
 
                <Button
                   onClick={onBookAppointmentClick}
-                  className="h-11 md:h-12 px-4 shadow-md flex-shrink-0 bg-primary hover:bg-primary/90"
+                  className="hidden md:flex h-12 px-4 shadow-md flex-shrink-0 bg-primary hover:bg-primary/90"
                >
-                  <CalendarPlus className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Book</span>
+                  <CalendarPlus className="h-4 w-4 mr-2" />
+                  <span>Book</span>
                </Button>
 
                <Button
                   onClick={onRegisterClick}
                   variant="outline"
-                  className="h-11 md:h-12 px-4 shadow-md flex-shrink-0"
+                  className="hidden md:flex h-12 px-4 shadow-md flex-shrink-0"
                >
-                  <UserPlus className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Register</span>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  <span>Register</span>
                </Button>
             </div>
          </div>

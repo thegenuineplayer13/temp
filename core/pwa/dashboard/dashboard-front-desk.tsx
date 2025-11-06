@@ -11,6 +11,8 @@ import { CustomerQuickView } from "./front-desk/customer-quick-view";
 import { AppointmentActionsDialog } from "./front-desk/appointment-actions-dialog";
 import { RegisterCustomerDialog } from "./front-desk/register-customer-dialog";
 import { CreateAppointmentWizard } from "./front-desk/create-appointment-wizard";
+import { FrontDeskActionsPanel } from "./front-desk/front-desk-actions-panel";
+import { QuickWalkInDialog } from "./front-desk/quick-walk-in-dialog";
 import type { NewCustomer } from "@/features/core/types/types.dashboard-front-desk";
 
 type MobileView = "dashboard" | "queue";
@@ -18,6 +20,7 @@ type MobileView = "dashboard" | "queue";
 export default function FrontDeskDashboard() {
    const isMobile = useIsMobile();
    const [mobileView, setMobileView] = useState<MobileView>("dashboard");
+   const [quickWalkInOpen, setQuickWalkInOpen] = useState(false);
 
    const { data: appointments = [] } = useAppointments();
 
@@ -87,6 +90,20 @@ export default function FrontDeskDashboard() {
 
    const handleRegisterCustomer = useCallback((customerData: NewCustomer) => {
       console.log("Registering new customer:", customerData);
+   }, []);
+
+   const handleQuickWalkIn = useCallback(
+      (name: string, service?: string) => {
+         console.log("Adding quick walk-in:", { name, service });
+         if (isMobile) {
+            setMobileView("queue");
+         }
+      },
+      [isMobile]
+   );
+
+   const handleOpenQuickWalkIn = useCallback(() => {
+      setQuickWalkInOpen(true);
    }, []);
 
    return (
@@ -169,6 +186,14 @@ export default function FrontDeskDashboard() {
          <RegisterCustomerDialog onRegister={handleRegisterCustomer} />
 
          <CreateAppointmentWizard />
+
+         <FrontDeskActionsPanel
+            onBookAppointment={openBookingWizard}
+            onRegisterCustomer={openRegisterDialog}
+            onAddToWalkIn={handleOpenQuickWalkIn}
+         />
+
+         <QuickWalkInDialog open={quickWalkInOpen} onOpenChange={setQuickWalkInOpen} onAddWalkIn={handleQuickWalkIn} />
       </div>
    );
 }
