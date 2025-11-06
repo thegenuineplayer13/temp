@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Camera, Plus, X } from "lucide-react";
+import { FileText, Camera, Plus, X, ClipboardList, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddNoteDialog } from "./add-note-dialog";
 import { PhotoUpload } from "./photo-upload";
+import { RequestDialog } from "./request-dialog";
+import { SwapShiftsDialog } from "./swap-shifts-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export function JobActionsPanel() {
    const isMobile = useIsMobile();
    const [noteDialogOpen, setNoteDialogOpen] = useState(false);
    const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
+   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+   const [swapShiftsDialogOpen, setSwapShiftsDialogOpen] = useState(false);
    const [fabOpen, setFabOpen] = useState(false);
 
    const openNoteDialog = () => {
@@ -19,6 +23,16 @@ export function JobActionsPanel() {
 
    const openPhotoUpload = () => {
       setPhotoUploadOpen(true);
+      setFabOpen(false);
+   };
+
+   const openRequestDialog = () => {
+      setRequestDialogOpen(true);
+      setFabOpen(false);
+   };
+
+   const openSwapShiftsDialog = () => {
+      setSwapShiftsDialogOpen(true);
       setFabOpen(false);
    };
 
@@ -36,6 +50,20 @@ export function JobActionsPanel() {
          color: "text-accent",
          bgColor: "bg-accent/10 hover:bg-accent/20",
          onClick: openPhotoUpload,
+      },
+      {
+         icon: ClipboardList,
+         label: "Requests",
+         color: "text-blue-600 dark:text-blue-500",
+         bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
+         onClick: openRequestDialog,
+      },
+      {
+         icon: ArrowLeftRight,
+         label: "Swap Shifts",
+         color: "text-purple-600 dark:text-purple-500",
+         bgColor: "bg-purple-500/10 hover:bg-purple-500/20",
+         onClick: openSwapShiftsDialog,
       },
    ];
 
@@ -97,8 +125,9 @@ export function JobActionsPanel() {
             )}
 
             <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
-
             <PhotoUpload open={photoUploadOpen} onOpenChange={setPhotoUploadOpen} />
+            <RequestDialog open={requestDialogOpen} onOpenChange={setRequestDialogOpen} />
+            <SwapShiftsDialog open={swapShiftsDialogOpen} onOpenChange={setSwapShiftsDialogOpen} />
          </>
       );
    }
@@ -125,8 +154,9 @@ export function JobActionsPanel() {
          </Card>
 
          <AddNoteDialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen} />
-
          <PhotoUpload open={photoUploadOpen} onOpenChange={setPhotoUploadOpen} />
+         <RequestDialog open={requestDialogOpen} onOpenChange={setRequestDialogOpen} />
+         <SwapShiftsDialog open={swapShiftsDialogOpen} onOpenChange={setSwapShiftsDialogOpen} />
       </>
    );
 }
