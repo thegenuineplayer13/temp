@@ -1,17 +1,17 @@
 import { useFrontDeskStore } from "@/features/core/store/store.front-desk";
 import { useServices } from "@/features/core/hooks/queries/queries.services";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, DollarSign } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import { IconBadge } from "@/features/core/components/shared/icon-badge";
+import { cn } from "@/lib/utils";
 import type { ServiceCartItem } from "@/features/core/types/types.dashboard-front-desk";
 
 export function CreateAppointmentStepServices() {
    const { bookingData, addServiceToCart, removeServiceFromCart } = useFrontDeskStore();
    const { data: services = [] } = useServices();
 
-   const handleToggleService = (service: typeof services[0], checked: boolean) => {
-      if (checked) {
+   const handleToggleService = (service: typeof services[0]) => {
+      const selected = isServiceSelected(service.id);
+      if (!selected) {
          const cartItem: ServiceCartItem = {
             serviceId: service.id,
             serviceName: service.name,
@@ -30,65 +30,47 @@ export function CreateAppointmentStepServices() {
       return bookingData.serviceCart.some((item) => item.serviceId === serviceId);
    };
 
-   const getIcon = (iconName: string) => {
-      const Icon = (LucideIcons as any)[iconName];
-      return Icon ? <Icon className="h-5 w-5" /> : null;
-   };
-
    return (
-      <div className="space-y-3">
-         <p className="text-sm text-muted-foreground">
-            Select one or more services for this appointment
-         </p>
-
-         <ScrollArea className="h-[500px] pr-4">
-            <div className="space-y-2">
+      <div className="space-y-4">
+         <div className="max-h-[450px] overflow-y-auto -mx-6 px-6">
+            <div className="space-y-1.5">
                {services.map((service) => {
                   const selected = isServiceSelected(service.id);
 
                   return (
-                     <label
+                     <div
                         key={service.id}
-                        className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent ${
-                           selected ? "border-primary bg-primary/5" : "border-border"
-                        }`}
+                        className={cn(
+                           "group relative flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-all cursor-pointer",
+                           selected
+                              ? "bg-accent border-foreground/20 shadow-sm"
+                              : "hover:bg-accent/50 border-transparent"
+                        )}
+                        onClick={() => handleToggleService(service)}
                      >
                         <Checkbox
                            checked={selected}
-                           onCheckedChange={(checked) => handleToggleService(service, checked as boolean)}
+                           onCheckedChange={() => handleToggleService(service)}
+                           onClick={(e) => e.stopPropagation()}
                         />
 
-                        <div className={`p-2 rounded-md bg-${service.color}-500/10 shrink-0`}>
-                           {getIcon(service.icon)}
-                        </div>
+                        <IconBadge icon={service.icon} color={service.color} size="md" />
 
                         <div className="flex-1 min-w-0">
-                           <div className="font-medium">{service.name}</div>
-                           {service.description && (
-                              <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                 {service.description}
-                              </div>
-                           )}
+                           <p className="font-medium leading-none">{service.name}</p>
+                           <p className="text-xs text-muted-foreground mt-1">
+                              ${service.price.toFixed(2)}
+                              {service.duration && ` • ${service.duration}min`}
+                           </p>
                         </div>
-
-                        <div className="flex flex-col items-end gap-1 shrink-0 text-sm">
-                           <div className="flex items-center gap-1 font-medium">
-                              <DollarSign className="h-3.5 w-3.5" />
-                              {service.price}
-                           </div>
-                           <div className="flex items-center gap-1 text-muted-foreground">
-                              <Clock className="h-3.5 w-3.5" />
-                              {service.duration || 30}min
-                           </div>
-                        </div>
-                     </label>
+                     </div>
                   );
                })}
             </div>
-         </ScrollArea>
+         </div>
 
          {bookingData.serviceCart.length > 0 && (
-            <div className="text-sm text-center text-muted-foreground pt-2">
+            <div className="text-sm text-center text-muted-foreground">
                {bookingData.serviceCart.length} service{bookingData.serviceCart.length > 1 ? "s" : ""} selected
             </div>
          )}

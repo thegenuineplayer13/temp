@@ -4,28 +4,30 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useServices } from "@/features/core/hooks/queries/queries.services";
+import { IconBadge } from "@/features/core/components/shared/icon-badge";
+import { cn } from "@/lib/utils";
 import { Users } from "lucide-react";
 
 interface QuickWalkInDialogProps {
    open: boolean;
    onOpenChange: (open: boolean) => void;
-   onAddWalkIn: (name: string, serviceId?: string) => void;
+   onAddWalkIn: (name: string, serviceIds?: string[]) => void;
 }
 
 export function QuickWalkInDialog({ open, onOpenChange, onAddWalkIn }: QuickWalkInDialogProps) {
    const isMobile = useIsMobile();
    const { data: services = [] } = useServices();
    const [name, setName] = useState("");
-   const [serviceId, setServiceId] = useState<string>("");
+   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
 
    const handleSubmit = () => {
       if (name.trim()) {
-         onAddWalkIn(name.trim(), serviceId || undefined);
+         onAddWalkIn(name.trim(), selectedServiceIds.length > 0 ? selectedServiceIds : undefined);
          setName("");
-         setServiceId("");
+         setSelectedServiceIds([]);
          onOpenChange(false);
       }
    };
@@ -35,6 +37,12 @@ export function QuickWalkInDialog({ open, onOpenChange, onAddWalkIn }: QuickWalk
          e.preventDefault();
          handleSubmit();
       }
+   };
+
+   const handleToggleService = (serviceId: string) => {
+      setSelectedServiceIds((prev) =>
+         prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+      );
    };
 
    const content = (
@@ -51,20 +59,39 @@ export function QuickWalkInDialog({ open, onOpenChange, onAddWalkIn }: QuickWalk
             />
          </div>
          <div className="space-y-2">
-            <Label htmlFor="walk-in-service">Requested Service (Optional)</Label>
-            <Select value={serviceId} onValueChange={setServiceId}>
-               <SelectTrigger>
-                  <SelectValue placeholder="Select a service" />
-               </SelectTrigger>
-               <SelectContent>
-                  {services.map((service) => (
-                     <SelectItem key={service.id} value={service.id}>
-                        {service.name} - ${service.price} ({service.duration}min)
-                     </SelectItem>
-                  ))}
-               </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">You can assign a service later if unsure</p>
+            <Label>Requested Services (Optional)</Label>
+            <div className="max-h-[300px] overflow-y-auto border border-border rounded-lg p-2">
+               <div className="space-y-1.5">
+                  {services.map((service) => {
+                     const selected = selectedServiceIds.includes(service.id);
+                     return (
+                        <div
+                           key={service.id}
+                           className={cn(
+                              "group relative flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-all cursor-pointer",
+                              selected ? "bg-accent border-foreground/20 shadow-sm" : "hover:bg-accent/50 border-transparent"
+                           )}
+                           onClick={() => handleToggleService(service.id)}
+                        >
+                           <Checkbox
+                              checked={selected}
+                              onCheckedChange={() => handleToggleService(service.id)}
+                              onClick={(e) => e.stopPropagation()}
+                           />
+                           <IconBadge icon={service.icon} color={service.color} size="sm" />
+                           <div className="flex-1 min-w-0">
+                              <p className="font-medium leading-none">{service.name}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                 ${service.price.toFixed(2)}
+                                 {service.duration && ` • ${service.duration}min`}
+                              </p>
+                           </div>
+                        </div>
+                     );
+                  })}
+               </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Select services the customer is interested in</p>
          </div>
       </div>
    );
