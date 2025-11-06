@@ -70,9 +70,14 @@ export function CreateAppointmentStepClient() {
    const selectedClient = customers.find((c) => c.id === bookingData.clientId);
 
    return (
-      <div className="space-y-6">
-         {/* Selected client preview */}
-         {selectedClient ? (
+      <div className="space-y-4 flex flex-col h-full">
+         <div className="text-center space-y-2">
+            <h3 className="font-semibold text-lg">Who is this appointment for?</h3>
+            <p className="text-sm text-muted-foreground">Search for an existing client or register a new one</p>
+         </div>
+
+         {/* Selected client - always on top if selected */}
+         {selectedClient && (
             <Card className="p-4 bg-primary/5 border-primary/20">
                <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1">
@@ -103,85 +108,70 @@ export function CreateAppointmentStepClient() {
                         updateBookingData({ clientId: null, clientName: null, clientPhone: null });
                         setSearchQuery("");
                      }}
-                     className="text-sm text-primary hover:underline"
+                     className="text-sm text-primary hover:underline flex-shrink-0"
                   >
                      Change
                   </button>
                </div>
             </Card>
-         ) : (
-            <>
-               <div className="text-center space-y-2">
-                  <h3 className="font-semibold text-lg">Who is this appointment for?</h3>
-                  <p className="text-sm text-muted-foreground">
-                     Search for an existing client or register a new one
-                  </p>
-               </div>
+         )}
 
-               {/* Search bar */}
-               <div ref={searchRef} className="relative">
-                  <div className="relative">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                     <Input
-                        type="text"
-                        placeholder="Search by name, phone, or email..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        onFocus={() => setShowSuggestions(true)}
-                        className="pl-10 pr-4 h-12 text-base"
-                        autoFocus
-                     />
-                  </div>
+         {/* Search bar - always visible */}
+         <div ref={searchRef} className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+            <Input
+               type="text"
+               placeholder="Search by name, phone, or email..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               onKeyDown={handleKeyDown}
+               onFocus={() => setShowSuggestions(true)}
+               className="pl-10 pr-4 h-12 text-base"
+               autoFocus={!selectedClient}
+            />
+         </div>
 
-                  {showSuggestions && suggestions.length > 0 && (
-                     <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50">
-                        {suggestions.slice(0, 6).map((customer, index) => (
-                           <button
-                              key={customer.id}
-                              onClick={() => handleSelectClient(customer)}
-                              className={cn(
-                                 "w-full px-4 py-3 flex items-center gap-3 hover:bg-accent transition-colors text-left",
-                                 index === highlightedIndex && "bg-accent",
-                                 index !== 0 && "border-t border-border"
-                              )}
-                           >
-                              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                 <User className="h-5 w-5 text-primary" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                 <p className="font-semibold text-sm truncate">{customer.name}</p>
-                                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                                    <Phone className="h-3 w-3" />
-                                    <span className="truncate">{customer.phone}</span>
-                                    <span className="text-[10px]">•</span>
-                                    <span className="whitespace-nowrap">{customer.totalVisits} visits</span>
-                                 </div>
-                              </div>
-                              {customer.totalVisits === 0 && (
-                                 <Badge variant="secondary" className="text-xs flex-shrink-0">
-                                    New
-                                 </Badge>
-                              )}
-                           </button>
-                        ))}
-                        {suggestions.length > 6 && (
-                           <div className="px-4 py-2 text-xs text-center text-muted-foreground border-t border-border bg-muted/30">
-                              +{suggestions.length - 6} more results. Keep typing to narrow down.
-                           </div>
+         {/* Scrollable results list */}
+         {showSuggestions && suggestions.length > 0 && (
+            <div className="flex-1 min-h-0 border border-border rounded-lg overflow-hidden">
+               <div className="overflow-y-auto h-full max-h-[400px]">
+                  {suggestions.map((customer, index) => (
+                     <button
+                        key={customer.id}
+                        onClick={() => handleSelectClient(customer)}
+                        className={cn(
+                           "w-full px-4 py-3 flex items-center gap-3 hover:bg-accent transition-colors text-left",
+                           index === highlightedIndex && "bg-accent",
+                           index !== 0 && "border-t border-border"
                         )}
-                     </div>
-                  )}
-
-                  {showSuggestions && suggestions.length === 0 && searchQuery && (
-                     <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl p-4 z-50">
-                        <p className="text-sm text-muted-foreground text-center">
-                           No clients found. Try a different search term.
-                        </p>
-                     </div>
-                  )}
+                     >
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                           <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <p className="font-semibold text-sm truncate">{customer.name}</p>
+                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <Phone className="h-3 w-3" />
+                              <span className="truncate">{customer.phone}</span>
+                              <span className="text-[10px]">•</span>
+                              <span className="whitespace-nowrap">{customer.totalVisits} visits</span>
+                           </div>
+                        </div>
+                        {customer.totalVisits === 0 && (
+                           <Badge variant="secondary" className="text-xs flex-shrink-0">
+                              New
+                           </Badge>
+                        )}
+                     </button>
+                  ))}
                </div>
-            </>
+            </div>
+         )}
+
+         {showSuggestions && suggestions.length === 0 && searchQuery && (
+            <div className="p-8 text-center border border-border rounded-lg">
+               <p className="text-sm text-muted-foreground">No clients found. Try a different search term.</p>
+            </div>
          )}
       </div>
    );

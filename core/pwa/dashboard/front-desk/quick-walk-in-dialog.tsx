@@ -4,25 +4,28 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useServices } from "@/features/core/hooks/queries/queries.services";
 import { Users } from "lucide-react";
 
 interface QuickWalkInDialogProps {
    open: boolean;
    onOpenChange: (open: boolean) => void;
-   onAddWalkIn: (name: string, service?: string) => void;
+   onAddWalkIn: (name: string, serviceId?: string) => void;
 }
 
 export function QuickWalkInDialog({ open, onOpenChange, onAddWalkIn }: QuickWalkInDialogProps) {
    const isMobile = useIsMobile();
+   const { data: services = [] } = useServices();
    const [name, setName] = useState("");
-   const [service, setService] = useState("");
+   const [serviceId, setServiceId] = useState<string>("");
 
    const handleSubmit = () => {
       if (name.trim()) {
-         onAddWalkIn(name.trim(), service.trim() || undefined);
+         onAddWalkIn(name.trim(), serviceId || undefined);
          setName("");
-         setService("");
+         setServiceId("");
          onOpenChange(false);
       }
    };
@@ -49,14 +52,19 @@ export function QuickWalkInDialog({ open, onOpenChange, onAddWalkIn }: QuickWalk
          </div>
          <div className="space-y-2">
             <Label htmlFor="walk-in-service">Requested Service (Optional)</Label>
-            <Input
-               id="walk-in-service"
-               placeholder="e.g., Haircut"
-               value={service}
-               onChange={(e) => setService(e.target.value)}
-               onKeyDown={handleKeyDown}
-            />
-            <p className="text-xs text-muted-foreground">You can assign a specific service later</p>
+            <Select value={serviceId} onValueChange={setServiceId}>
+               <SelectTrigger>
+                  <SelectValue placeholder="Select a service" />
+               </SelectTrigger>
+               <SelectContent>
+                  {services.map((service) => (
+                     <SelectItem key={service.id} value={service.id}>
+                        {service.name} - ${service.price} ({service.duration}min)
+                     </SelectItem>
+                  ))}
+               </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">You can assign a service later if unsure</p>
          </div>
       </div>
    );
