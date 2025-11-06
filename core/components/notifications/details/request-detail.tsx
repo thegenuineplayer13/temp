@@ -16,15 +16,40 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Request } from "@/features/core/types/types.notifications";
+import type { Employee } from "@/features/core/types/types.staff";
+import type { Appointment } from "@/features/core/types/types.dashboard-front-desk";
+import type { WorkingHours, TimeOffEntry } from "@/features/core/types/types.calendar";
+import type { ServiceRelationship } from "@/features/core/types/types.services";
 import { formatDate } from "../notification-utils";
+import { ConflictResolutionPanel } from "../conflict-resolution-panel";
+import { areAllConflictsResolved } from "@/features/core/lib/conflict-resolution-utils";
 
 interface RequestDetailProps {
 	request: Request;
 	onApprove?: (id: string) => void;
 	onReject?: (id: string) => void;
+	// Conflict resolution props
+	allEmployees?: Employee[];
+	appointments?: Appointment[];
+	workingHours?: WorkingHours[];
+	timeOffEntries?: TimeOffEntry[];
+	serviceRelationships?: ServiceRelationship;
+	onUpdateConflicts?: (updatedRequest: Request) => void;
+	onSendOffer?: (dayDate: string, staffId: string) => void;
 }
 
-export function RequestDetail({ request, onApprove, onReject }: RequestDetailProps) {
+export function RequestDetail({
+	request,
+	onApprove,
+	onReject,
+	allEmployees,
+	appointments,
+	workingHours,
+	timeOffEntries,
+	serviceRelationships,
+	onUpdateConflicts,
+	onSendOffer,
+}: RequestDetailProps) {
 	const metadata = request.metadata as any;
 	const isTimeOffRequest = [
 		"day-off",
@@ -33,6 +58,9 @@ export function RequestDetail({ request, onApprove, onReject }: RequestDetailPro
 		"personal-day",
 		"bereavement",
 	].includes(request.type);
+
+	// Check if conflicts are resolved
+	const canApprove = !request.conflicts || areAllConflictsResolved(request);
 
 	return (
 		<div className="space-y-6">
@@ -306,6 +334,26 @@ export function RequestDetail({ request, onApprove, onReject }: RequestDetailPro
 				</Card>
 			)}
 
+			{/* Conflict Resolution Panel */}
+			{request.conflicts &&
+				allEmployees &&
+				appointments &&
+				workingHours &&
+				timeOffEntries &&
+				serviceRelationships &&
+				onUpdateConflicts && (
+					<ConflictResolutionPanel
+						request={request}
+						allEmployees={allEmployees}
+						appointments={appointments}
+						workingHours={workingHours}
+						timeOffEntries={timeOffEntries}
+						serviceRelationships={serviceRelationships}
+						onUpdateConflicts={onUpdateConflicts}
+						onSendOffer={onSendOffer}
+					/>
+				)}
+
 			{/* Replacement */}
 			{request.replacement && (
 				<Card className="p-4 bg-green-500/5 border-green-500/20">
@@ -339,9 +387,19 @@ export function RequestDetail({ request, onApprove, onReject }: RequestDetailPro
 			{request.status === "pending" && (onApprove || onReject) && (
 				<div className="space-y-2">
 					<h3 className="font-semibold">Actions</h3>
+					{!canApprove && request.conflicts && (
+						<p className="text-sm text-orange-600 dark:text-orange-500 flex items-center gap-2">
+							<AlertTriangle className="h-4 w-4" />
+							Resolve all conflicts before approving this request
+						</p>
+					)}
 					<div className="grid grid-cols-2 gap-2">
 						{onApprove && (
-							<Button onClick={() => onApprove(request.id)} className="w-full">
+							<Button
+								onClick={() => onApprove(request.id)}
+								className="w-full"
+								disabled={!canApprove}
+							>
 								<Check className="h-4 w-4 mr-2" />
 								Approve
 							</Button>

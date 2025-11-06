@@ -48,6 +48,134 @@ export const alertStatusSchema = z.enum(["unread", "acknowledged", "resolved"]);
 
 export const requestStatusSchema = z.enum(["pending", "approved", "rejected"]);
 
+// Conflict Resolution
+export const staffAvailabilityTierSchema = z.enum([
+	"available",
+	"needs-approval",
+	"unavailable",
+]);
+
+export const assignmentModeSchema = z.enum(["single", "split", "individual"]);
+
+export const conflictStatusSchema = z.enum(["pending", "reassigned", "needs-cancellation", "offered"]);
+
+// ============================================================================
+// Conflict Resolution Schemas
+// ============================================================================
+
+export const appointmentConflictSchema = z.object({
+	id: z.string(),
+	date: z.string(),
+	startTime: z.string(),
+	endTime: z.string(),
+	clientName: z.string(),
+	clientPhone: z.string().optional(),
+	services: z.array(
+		z.object({
+			id: z.string(),
+			name: z.string(),
+			specializationId: z.string(),
+			duration: z.number(),
+		}),
+	),
+	status: conflictStatusSchema,
+	replacementStaffId: z.string().optional(),
+	replacementStaffName: z.string().optional(),
+	notes: z.string().optional(),
+});
+
+export const replacementStaffSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	avatar: z.string().optional(),
+	specializationIds: z.array(z.string()),
+	availability: staffAvailabilityTierSchema,
+	leaveType: z.enum(["vacation", "personal-day", "day-off", "sick-leave"]).optional(),
+	willingToWork: z.boolean().optional(),
+	existingAppointments: z.number(),
+	hoursScheduled: z.number(),
+	canTakeFullDay: z.boolean(),
+	canTakeServiceIds: z.array(z.string()),
+	unavailableReason: z.string().optional(),
+});
+
+export const dayAssignmentSchema = z.object({
+	fullDay: z
+		.object({
+			staffId: z.string(),
+			staffName: z.string(),
+			appointmentIds: z.array(z.string()),
+		})
+		.optional(),
+	bySpecialization: z
+		.array(
+			z.object({
+				specializationId: z.string(),
+				staffId: z.string(),
+				staffName: z.string(),
+				appointmentIds: z.array(z.string()),
+			}),
+		)
+		.optional(),
+	individual: z
+		.array(
+			z.object({
+				appointmentId: z.string(),
+				staffId: z.string(),
+				staffName: z.string(),
+			}),
+		)
+		.optional(),
+});
+
+export const conflictDaySchema = z.object({
+	date: z.string(),
+	appointments: z.array(appointmentConflictSchema),
+	totalAppointments: z.number(),
+	requiredSpecializationIds: z.array(z.string()),
+	assignmentMode: assignmentModeSchema,
+	assignments: dayAssignmentSchema,
+	isResolved: z.boolean(),
+});
+
+export const workOfferSchema = z.object({
+	id: z.string(),
+	type: z.literal("time-off-coverage"),
+	fromRequestId: z.string(),
+	targetStaffId: z.string(),
+	targetStaffName: z.string(),
+	offeredBy: z.object({
+		id: z.string(),
+		name: z.string(),
+	}),
+	coverageDetails: z.object({
+		date: z.string(),
+		appointments: z.array(appointmentConflictSchema),
+		totalHours: z.number(),
+		estimatedRevenue: z.number().optional(),
+	}),
+	compensation: z
+		.object({
+			overtimePay: z.boolean(),
+			bonusAmount: z.number().optional(),
+			timeOffCredit: z.number().optional(),
+		})
+		.optional(),
+	status: z.enum(["pending", "accepted", "declined"]),
+	respondedAt: z.string().optional(),
+	expiresAt: z.string(),
+	createdAt: z.string(),
+});
+
+export const staffLeavePreferencesSchema = z.object({
+	employeeId: z.string(),
+	willingToWorkDuringLeave: z.boolean(),
+	preferredCompensation: z.enum(["overtime", "time-credit", "bonus"]),
+	minimumNoticeHours: z.number(),
+	maxHoursPerLeaveDay: z.number().optional(),
+	blackoutDates: z.array(z.string()).optional(),
+});
+
 // ============================================================================
 // Base Notification Schema
 // ============================================================================
@@ -124,6 +252,13 @@ export const requestSchema = baseNotificationSchema.extend({
 		.object({
 			id: z.string(),
 			name: z.string(),
+		})
+		.optional(),
+	conflicts: z
+		.object({
+			total: z.number(),
+			resolved: z.number(),
+			days: z.array(conflictDaySchema),
 		})
 		.optional(),
 });

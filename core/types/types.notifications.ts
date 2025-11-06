@@ -11,6 +11,15 @@ import {
 	requestSchema,
 	notificationSchema,
 	notificationStatsSchema,
+	staffAvailabilityTierSchema,
+	assignmentModeSchema,
+	conflictStatusSchema,
+	appointmentConflictSchema,
+	replacementStaffSchema,
+	dayAssignmentSchema,
+	conflictDaySchema,
+	workOfferSchema,
+	staffLeavePreferencesSchema,
 } from "@/features/core/schemas/schemas.notifications";
 
 // ============================================================================
@@ -23,6 +32,9 @@ export type AlertType = z.infer<typeof alertTypeSchema>;
 export type RequestType = z.infer<typeof requestTypeSchema>;
 export type AlertStatus = z.infer<typeof alertStatusSchema>;
 export type RequestStatus = z.infer<typeof requestStatusSchema>;
+export type StaffAvailabilityTier = z.infer<typeof staffAvailabilityTierSchema>;
+export type AssignmentMode = z.infer<typeof assignmentModeSchema>;
+export type ConflictStatus = z.infer<typeof conflictStatusSchema>;
 
 // ============================================================================
 // Notification Types
@@ -38,6 +50,17 @@ export type Notification = z.infer<typeof notificationSchema>;
 // ============================================================================
 
 export type NotificationStats = z.infer<typeof notificationStatsSchema>;
+
+// ============================================================================
+// Conflict Resolution Types
+// ============================================================================
+
+export type AppointmentConflict = z.infer<typeof appointmentConflictSchema>;
+export type ReplacementStaff = z.infer<typeof replacementStaffSchema>;
+export type DayAssignment = z.infer<typeof dayAssignmentSchema>;
+export type ConflictDay = z.infer<typeof conflictDaySchema>;
+export type WorkOffer = z.infer<typeof workOfferSchema>;
+export type StaffLeavePreferences = z.infer<typeof staffLeavePreferencesSchema>;
 
 // ============================================================================
 // Filter Types
