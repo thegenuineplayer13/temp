@@ -2,33 +2,33 @@ import type { Employee } from "@/features/core/types/types.staff";
 
 export const mockEmployees: Employee[] = [
   {
-    id: "1",
+    id: "emp-1",
     name: "Maria Garcia",
     email: "maria.garcia@example.com",
     phone: "(555) 123-4567",
     role: "owner",
     status: "active",
-    specializationIds: ["1", "3"], // Hair Styling, Hair Coloring
+    specializationIds: ["1", "2", "3"], // Hair Styling, Beard Grooming, Hair Coloring (master stylist)
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
     hireDate: "2020-01-15",
     salary: 75000,
-    notes: "Owner and master stylist",
+    notes: "Owner and master stylist - can handle all hair services",
   },
   {
-    id: "2",
+    id: "emp-2",
     name: "John Smith",
     email: "john.smith@example.com",
     phone: "(555) 234-5678",
     role: "employee",
     status: "active",
-    specializationIds: ["2"], // Beard Grooming
+    specializationIds: ["1", "2"], // Hair Styling, Beard Grooming
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
     hireDate: "2021-03-20",
     salary: 45000,
-    notes: "Specialized in men's grooming",
+    notes: "Specialized in men's haircuts and grooming",
   },
   {
-    id: "3",
+    id: "emp-3",
     name: "Sarah Johnson",
     email: "sarah.johnson@example.com",
     phone: "(555) 345-6789",
@@ -41,46 +41,46 @@ export const mockEmployees: Employee[] = [
     notes: "Front desk and junior stylist",
   },
   {
-    id: "4",
+    id: "emp-4",
     name: "Michael Brown",
     email: "michael.brown@example.com",
     phone: "(555) 456-7890",
     role: "employee",
     status: "active",
-    specializationIds: ["3"], // Hair Coloring
+    specializationIds: ["1", "3"], // Hair Styling, Hair Coloring
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
     hireDate: "2022-01-05",
     salary: 42000,
-    notes: "Color specialist",
+    notes: "Haircut and color specialist",
   },
   {
-    id: "5",
+    id: "emp-5",
     name: "Emily Davis",
     email: "emily.davis@example.com",
     phone: "(555) 567-8901",
     role: "employee",
     status: "active",
-    specializationIds: ["5"], // Nail Care
+    specializationIds: ["4", "5"], // Spa Services, Nail Care
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
     hireDate: "2022-04-12",
     salary: 40000,
-    notes: "Nail technician",
+    notes: "Spa and nail technician",
   },
   {
-    id: "6",
+    id: "emp-6",
     name: "David Wilson",
     email: "david.wilson@example.com",
     phone: "(555) 678-9012",
     role: "admin",
     status: "active",
-    specializationIds: ["1", "2"], // Hair Styling, Beard Grooming
+    specializationIds: ["1", "2", "3"], // Hair Styling, Beard Grooming, Hair Coloring
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
     hireDate: "2020-08-18",
     salary: 55000,
-    notes: "Manager and senior stylist",
+    notes: "Manager and senior stylist - versatile with all hair services",
   },
   {
-    id: "7",
+    id: "emp-7",
     name: "Lisa Anderson",
     email: "lisa.anderson@example.com",
     phone: "(555) 789-0123",
@@ -93,7 +93,7 @@ export const mockEmployees: Employee[] = [
     notes: "On maternity leave",
   },
   {
-    id: "8",
+    id: "emp-8",
     name: "Robert Taylor",
     email: "robert.taylor@example.com",
     phone: "(555) 890-1234",
