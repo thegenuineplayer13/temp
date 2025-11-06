@@ -18,8 +18,8 @@ import {
 	applySmartSuggestion,
 	type SmartSuggestion,
 } from "@/features/core/lib/smart-suggestion-utils";
-import { ManualAssignmentSheet } from "./manual-assignment-sheet";
-import { BroadcastSheet } from "./broadcast-sheet";
+import { ManualAssignmentDialog } from "./manual-assignment-dialog";
+import { BroadcastDialog } from "./broadcast-dialog";
 
 interface MobileConflictResolutionProps {
 	request: Request;
@@ -42,8 +42,8 @@ export function MobileConflictResolution({
 	onUpdateConflicts,
 	onSendBroadcast,
 }: MobileConflictResolutionProps) {
-	const [showManualSheet, setShowManualSheet] = useState(false);
-	const [showBroadcastSheet, setShowBroadcastSheet] = useState(false);
+	const [showManualDialog, setShowManualDialog] = useState(false);
+	const [showBroadcastDialog, setShowBroadcastDialog] = useState(false);
 
 	// Early return if no conflicts
 	if (!request.conflicts || request.conflicts.total === 0) {
@@ -182,7 +182,7 @@ export function MobileConflictResolution({
 								<Button
 									variant="outline"
 									className="w-full justify-start"
-									onClick={() => setShowManualSheet(true)}
+									onClick={() => setShowManualDialog(true)}
 								>
 									<Settings2 className="h-4 w-4 mr-2" />
 									Choose Manually
@@ -191,7 +191,7 @@ export function MobileConflictResolution({
 								<Button
 									variant="outline"
 									className="w-full justify-start"
-									onClick={() => setShowBroadcastSheet(true)}
+									onClick={() => setShowBroadcastDialog(true)}
 								>
 									<Radio className="h-4 w-4 mr-2" />
 									Broadcast to Team
@@ -212,10 +212,10 @@ export function MobileConflictResolution({
 				</div>
 			</Card>
 
-			{/* Manual Assignment Sheet */}
-			<ManualAssignmentSheet
-				open={showManualSheet}
-				onOpenChange={setShowManualSheet}
+			{/* Manual Assignment Dialog */}
+			<ManualAssignmentDialog
+				open={showManualDialog}
+				onOpenChange={setShowManualDialog}
 				request={request}
 				allEmployees={allEmployees}
 				appointments={appointments}
@@ -225,10 +225,10 @@ export function MobileConflictResolution({
 				onUpdateConflicts={onUpdateConflicts}
 			/>
 
-			{/* Broadcast Sheet */}
-			<BroadcastSheet
-				open={showBroadcastSheet}
-				onOpenChange={setShowBroadcastSheet}
+			{/* Broadcast Dialog */}
+			<BroadcastDialog
+				open={showBroadcastDialog}
+				onOpenChange={setShowBroadcastDialog}
 				request={request}
 				allEmployees={allEmployees}
 				onSendBroadcast={onSendBroadcast}
